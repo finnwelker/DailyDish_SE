@@ -1,0 +1,2 @@
+http://127.0.0.1:8000/docs für swagger doku
+vorher: python -m uvicorn main:app --reload in konsole
