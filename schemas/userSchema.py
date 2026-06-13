@@ -6,6 +6,7 @@ class UserCreate(BaseModel):
 
 
 class UserResponse(BaseModel):
+    id: int
     name: str
 
     class Config:

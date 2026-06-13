@@ -2,12 +2,13 @@
 from pydantic import BaseModel
 
 
-class TagCreate(BaseModel):
+class Tag(BaseModel):
     name: str
 
 
 class TagResponse(BaseModel):
+    id: int
     name: str
 
-    class TagsResponse(BaseModel):
+    class Config(BaseModel):
         from_attributes = True  # Um SQLAlchemy Sachen zu konvertieren

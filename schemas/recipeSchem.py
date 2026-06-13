@@ -12,6 +12,7 @@ class RecipeResponse(BaseModel):
     id: int
     title: str
     description: str
+    ingredients: str
     instructions: str
 
     class Config:
