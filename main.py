@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from database import engine, Base
-import models.recipe
-from routers import recipeRout
+from models import user, recipe, tag, join_tables
+from routers import recipeRout, userRout, tagRout
 
 Base.metadata.create_all(bind=engine)
 

@@ -1,0 +1,4 @@
+dailydish.db
+__pycache__/
+*.pyc
+.idea/
