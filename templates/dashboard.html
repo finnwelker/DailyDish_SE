@@ -7,7 +7,11 @@
 <section class="dashboard-hero">
     <div>
         <div class="eyebrow">Dashboard</div>
-        <h2>Willkommen bei DailyDish, {{ user.name }}!</h2>
+        {% if user %}
+            <h2>Willkommen bei DailyDish, {{ user.name }}!</h2>
+        {% else %}
+            <h2>Willkommen bei DailyDish</h2>
+        {% endif %}
         <p>Hier findest du täglich neue Rezept-Vorschläge, basierend auf deinen Vorlieben.</p>
         {% if not is_logged_in %}
             <p>Erstelle ein Konto oder logge dich ein, um deine persönlichen Vorschläge zu sehen.</p>
@@ -37,7 +41,7 @@
 </section>
 
 <footer>
-    <p>DailyDish-Prototyp — starte <code>uvicorn main:app --reload</code> und öffne <strong>/dashboard</strong>.</p>
+    <p>DailyDish-Prototyp — starte <code>python -m uvicorn main:app --reload</code> und öffne <strong>/dashboard</strong>.</p>
 </footer>
 
 {% endblock %}

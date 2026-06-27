@@ -1,7 +1,5 @@
 from pathlib import Path
-import hashlib
 from fastapi import FastAPI, Request, Depends
-from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import inspect, text
@@ -50,9 +48,11 @@ templates = Jinja2Templates(
     directory=str(BASE_DIR / "templates"),
     context_processors=[auth_context, user_context],
 )
+app.state.templates = templates
 
 app.include_router(recipeRout.router)
 app.include_router(userRout.router)
+app.include_router(userRout.auth_router)
 app.include_router(tagRout.router)
 app.include_router(suggestionRout.router)
 
@@ -77,81 +77,3 @@ def dashboard(request: Request):
     )
 
 
-@app.get("/signup")
-def signup_form(request: Request):
-    return templates.TemplateResponse(
-        request,
-        "signup.html",
-        {"request": request}
-    )
-
-
-@app.post("/signup")
-async def signup_submit(request: Request, db: Session = Depends(get_db)):
-    form = await request.form()
-    username = form.get("username", "").strip()
-    password = form.get("password", "")
-
-    if not username or not password:
-        return templates.TemplateResponse(
-            request,
-            "signup.html",
-            {"request": request, "error": "Bitte gib einen Benutzernamen und ein Passwort ein."}
-        )
-
-    existing_user = db.query(User).filter(User.name == username).first()
-    if existing_user:
-        return templates.TemplateResponse(
-            request,
-            "signup.html",
-            {"request": request, "error": "Dieser Benutzername existiert bereits."}
-        )
-
-    new_user = User(name=username, password=hash_password(password))
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
-
-    return RedirectResponse(url="/login", status_code=303)
-
-
-@app.get("/login")
-def login_form(request: Request):
-    return templates.TemplateResponse(
-        request,
-        "login.html",
-        {"request": request}
-    )
-
-
-@app.post("/login")
-async def login_submit(request: Request, db: Session = Depends(get_db)):
-    form = await request.form()
-    username = form.get("username", "").strip()
-    password = form.get("password", "")
-
-    if not username or not password:
-        return templates.TemplateResponse(
-            request,
-            "login.html",
-            {"request": request, "error": "Bitte gib deinen Benutzernamen und dein Passwort ein."}
-        )
-
-    user = db.query(User).filter(User.name == username).first()
-    if not user or not verify_password(password, user.password):
-        return templates.TemplateResponse(
-            request,
-            "login.html",
-            {"request": request, "error": "Benutzername oder Passwort ist ungültig."}
-        )
-
-    response = RedirectResponse(url="/dashboard", status_code=303)
-    response.set_cookie("user_id", str(user.id), httponly=True, samesite="lax")
-    return response
-
-
-@app.get("/logout")
-def logout(request: Request):
-    response = RedirectResponse(url="/login", status_code=303)
-    response.delete_cookie("user_id")
-    return response
