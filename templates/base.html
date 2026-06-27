@@ -14,8 +14,12 @@
 
     <nav>
         <a href="/dashboard">Dashboard</a>
-        <a href="/login">Login</a>
-        <a href="/signup">Sign Up</a>
+        {% if is_logged_in %}
+            <a href="/logout">Logout</a>
+        {% else %}
+            <a href="/login">Login</a>
+            <a href="/signup">Sign Up</a>
+        {% endif %}
     </nav>
 </header>
 
