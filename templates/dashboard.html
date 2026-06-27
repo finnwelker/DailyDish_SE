@@ -4,11 +4,39 @@
 
 {% block content %}
 
-<h2>Today's Recipe</h2>
+<section class="dashboard-hero">
+    <div>
+        <div class="eyebrow">Dashboard</div>
+        <h2>Willkommen zurück bei DailyDish</h2>
+        <p>Hier findest du täglich neue Rezept-Vorschläge, basierend auf deinen Vorlieben.</p>
+        <p>Erstelle ein Konto oder logge dich ein, um deine persönlichen Vorschläge zu sehen.</p>
+        <a class="button" href="/login">Login</a>
+        <a class="button" href="/signup">Sign Up</a>
+    </div>
+</section>
 
-<div id="recipe-container">
-    Loading recipe...
-</div>
+<section class="overview-grid">
+    <div class="card">
+        <h3>Rezept-Beispiele</h3>
+        <div id="recipe-example-list" class="suggestion-list">
+            <p>Loading recipe examples...</p>
+        </div>
+    </div>
+    <div class="card">
+        <h3>Beliebte Tags</h3>
+        <div class="tag-pill-list">
+            <span class="tag-pill">schnell</span>
+            <span class="tag-pill">vegetarisch</span>
+            <span class="tag-pill">gesund</span>
+            <span class="tag-pill">comfortfood</span>
+            <span class="tag-pill">saisonal</span>
+        </div>
+    </div>
+</section>
+
+<footer>
+    <p>DailyDish-Prototyp — starte <code>uvicorn main:app --reload</code> und öffne <strong>/dashboard</strong>.</p>
+</footer>
 
 {% endblock %}
 
