@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<section class="auth-card">
+    <h2>Login</h2>
+    {% if error %}
+        <div class="auth-error">{{ error }}</div>
+    {% endif %}
+    {% if message %}
+        <div class="auth-message">{{ message }}</div>
+    {% endif %}
+    <form method="post" action="/login">
+        <label>
+            Benutzername
+            <input type="text" name="username" placeholder="Dein Benutzername" required>
+        </label>
+        <label>
+            Passwort
+            <input type="password" name="password" placeholder="Passwort" required>
+        </label>
+        <button class="button" type="submit">Einloggen</button>
+    </form>
+</section>
+{% endblock %}
