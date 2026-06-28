@@ -1,3 +1,4 @@
+import hashlib
 from pathlib import Path
 from fastapi import FastAPI, Request, Depends
 from fastapi.staticfiles import StaticFiles
