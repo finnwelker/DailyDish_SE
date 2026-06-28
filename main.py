@@ -13,14 +13,6 @@ from routers import recipeRout, userRout, tagRout, suggestionRout
 BASE_DIR = Path(__file__).resolve().parent
 Base.metadata.create_all(bind=engine)
 
-# Ensure the users table has a password column if the database already existed
-inspector = inspect(engine)
-if "users" in inspector.get_table_names():
-    columns = [column.get("name") for column in inspector.get_columns("users")]
-    if "password" not in columns:
-        with engine.begin() as conn:
-            conn.execute(text("ALTER TABLE users ADD COLUMN password VARCHAR"))
-
 app = FastAPI(title="DailyDish API")
 
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
