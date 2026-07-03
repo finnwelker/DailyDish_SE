@@ -22,19 +22,24 @@ def get_suggestion(user_id: int, db: Session):
     if not user:
         return None
 
+    required_tags = {tag.name for tag in user.tags if tag.is_required}
+    preference_tags = {tag.name for tag in user.tags if not tag.is_required}
+
     # Und alle Rezepte
     recipes = db.query(Recipe).all()
 
-    user_tags = set()
-    for tag in user.tags:
-        user_tags.add(tag.name)
+    valid_recipes = []
+    for recipe in recipes:
+        recipe_tags = {tag.name for tag in recipe.tags}
+        if required_tags.issubset(recipe_tags):
+            valid_recipes.append(recipe)
 
     best_recipe = None
     best_score = -1
 
-    for recipe in recipes:
+    for recipe in valid_recipes:
         recipe_tags = {tag.name for tag in recipe.tags}
-        score = calculate_score(user_tags, recipe_tags)
+        score = calculate_score(preference_tags, recipe_tags)
 
         if score > best_score:
             best_score = score
