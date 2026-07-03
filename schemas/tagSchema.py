@@ -9,6 +9,7 @@ class TagCreate(BaseModel):
 class TagResponse(BaseModel):
     id: int
     name: str
+    is_required: bool
 
     class Config:
         from_attributes = True
