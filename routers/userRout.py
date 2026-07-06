@@ -52,8 +52,8 @@ def signup_form(request: Request):
 @auth_router.post("/signup")
 async def signup_submit(request: Request, db: Session = Depends(get_db)):
     form = await request.form()
-    username = form.get("username", "").strip()
-    password = form.get("password", "")
+    username = str(form.get("username", "")).strip()
+    password = str(form.get("password", ""))
 
     if not username or not password:
         return request.app.state.templates.TemplateResponse(
@@ -90,8 +90,8 @@ def login_form(request: Request):
 @auth_router.post("/login")
 async def login_submit(request: Request, db: Session = Depends(get_db)):
     form = await request.form()
-    username = form.get("username", "").strip()
-    password = form.get("password", "")
+    username = str(form.get("username", "")).strip()
+    password = str(form.get("password", ""))
 
     if not username or not password:
         return request.app.state.templates.TemplateResponse(
@@ -101,7 +101,7 @@ async def login_submit(request: Request, db: Session = Depends(get_db)):
         )
 
     user = db.query(User).filter(User.name == username).first()
-    if not user or not verify_password(password, user.password):
+    if not user or not verify_password(password, str(user.password)):
         return request.app.state.templates.TemplateResponse(
             request,
             "login.html",
