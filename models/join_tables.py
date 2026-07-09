@@ -12,9 +12,6 @@ recipe_tags = Table("recipe_tags", Base.metadata,
                     Column("tag_id", Integer, ForeignKey("tags.id"))
                     )
 
-favourites = Table(
-    "favourites",
-    Base.metadata,
-    Column("user_id", Integer, ForeignKey("users.id")),
-    Column("recipe_id", Integer, ForeignKey("recipes.id"))
-)
+favourites = Table("favourites", Base.metadata,
+                   Column("user_id", Integer, ForeignKey("users.id")),
+                   Column("recipe_id", Integer, ForeignKey("recipes.id")))

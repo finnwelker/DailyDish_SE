@@ -11,4 +11,4 @@ class User(Base):
     name = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
     tags = relationship("Tag", secondary="user_tags")
-    favourite_recipe = relationship("Recipe", secondary="user_favourites")
+    favourite_recipes = relationship("Recipe", secondary="favourites")
