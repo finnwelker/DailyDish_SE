@@ -71,6 +71,21 @@ rezept2 = Recipe(
                  "3. Würzen und passierte Tomaten hinzugeben 4. mind. halbe Stunde köcheln lassen 5. Nudeln nach Packungsanweisungen kochen und zur Bolognese hinzugeben 6. ggf. Nachwürzen und mit frischem Basilikum servieren",
     tags=[laktosefrei, halal, nonuts, italienisch, deftig, dauert, einfach]
 )
+rezept3 = Recipe(
+    title="Jerk Chicken",
+    description="Ein Klassiker aus Jamaika",
+    ingredients="500g Huhn (Brust oder Keule), Frühlingszwiebeln, Ingwer, Knoblauch, Chilis, brauner Zucker, Piment, Zimt, Muskatnuss, Limettensaft, Öl",
+    instructions="1. Alle Zutaten bis auf das Fleisch zusammenfügen und pürieren. 2. Über Nacht das Fleisch marinieren lassen 3. Auf dem Grill oder im Ofen bei 180° garen bis das Fleiscch knusprig ist.",
+    tags=[laktosefrei, halal, nonuts, karibisch, deftig, einfach, dauert]
+)
+
+rezept4 = Recipe(
+    title="Zucchini-Frikadellen",
+    description="Leckere vegetarische Zucchini-Puffer",
+    ingredients="2-3 Zucchinis, 1-2 Eier, Zwiebeln, Knoblauch, Mehl/Paniermehl oder Reis, Öl, Salz, Pfeffer, Paprikapulver, Muskatnuss",
+    instructions="1. Die Zwiebeln, Knoblauch und Zucchinis reiben. 2. Gemüse und Gewürze mit Eiern vermengen. 3. Zusammen mit etwas Mehl oder ein wenig gekochtem Reis zu kleinen Fladen formen. 4. In etwas Öl scharf anbraten.",
+    tags=[vegetarisch, halal, laktosefrei, nonuts, leicht, einfach, schnell]
+)
 
 db.add_all([rezept1, rezept2])
 db.commit()

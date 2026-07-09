@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from database import engine, Base, get_db, SessionLocal
 from models import recipe, tag, join_tables
 from models.user import User
-from routers import recipeRout, userRout, tagRout, suggestionRout
+from routers import recipeRout, userRout, tagRout, suggestionRout, favouriteRouter
 
 BASE_DIR = Path(__file__).resolve().parent
 Base.metadata.create_all(bind=engine)
@@ -48,6 +48,7 @@ app.include_router(userRout.router)
 app.include_router(userRout.auth_router)
 app.include_router(tagRout.router)
 app.include_router(suggestionRout.router)
+app.include_router(favouriteRouter.router)
 
 
 def hash_password(password: str) -> str:
