@@ -14,4 +14,11 @@ def suggest_recipe(user_id: int, db: Session = Depends(get_db)):
     if not recipe:
         raise HTTPException(status_code=404, detail="Kein passendes Rezept gefunden")
 
-    return recipe
+    return {
+        "id": recipe.id,
+        "title": recipe.title,
+        "description": recipe.description,
+        "ingredients": recipe.ingredients,
+        "instructions": recipe.instructions,
+        "tags": [tag.name for tag in recipe.tags],
+    }

@@ -76,6 +76,42 @@ def _build_tag_catalog():
     }
 
 
+def _build_seed_recipes(tag_lookup: dict[str, Tag]):
+    return [
+        {
+            "title": "Gemüsecurry",
+            "description": "Ein veganes Gemüsecurry mit Kokosmilch und Reis",
+            "ingredients": "250g Reis, 500ml Kokosmilch, Paprika, Zwiebeln, Sojasprossen, Salz, Weißer Pfeffer, Kreuzkümmel, Chilipulver",
+            "instructions": "1. Reis nach Packungsanweisungen kochen. 2. Zwiebeln und anderes Gemüse anbraten. 3. Würzen 4. Kokosmilch hinzugeben 5. ggf. Nachwürzen und mit Reis servieren",
+            "tag_names": [
+                "Vegetarisch", "Vegan", "Halal", "Glutenfrei", "Laktosefrei", "Enthält keine Nüsse",
+                "Asiatisch", "Leicht", "Schnell", "Thai", "Vietnamesisch", "Chinesisch"
+            ],
+        },
+        {
+            "title": "Spaghetti Bolognese",
+            "description": "Ein klassisches italienisches Gericht",
+            "ingredients": "Spaghetti, 500 Hack, 500ml passierte Tomaten, Tomatenmark, Zwiebeln, Karotten, ggf. Staudensellerie, Salz, Pfeffer, Chilipulver, Basilikum, Knoblauch",
+            "instructions": "1. Zwiebeln und anderes Gemüse anbraten. 2. Wenn gewollt, Knoblauch hinzufügen (aufpassen, dass dieser nicht anbrennt) 3. Hack hinzugeben und anbraten, Tomatenmark ebenfalls 4. Würzen und passierte Tomaten hinzugeben 5. mind. halbe Stunde köcheln lassen 6. Nudeln nach Packungsanweisungen kochen und zur Bolognese hinzugeben 7. ggf. Nachwürzen und mit frischem Basilikum servieren",
+            "tag_names": ["Laktosefrei", "Halal", "Enthält keine Nüsse", "Italienisch", "Deftig", "Dauert", "Einfach"],
+        },
+        {
+            "title": "Jerk Chicken",
+            "description": "Ein Klassiker aus Jamaika",
+            "ingredients": "500g Huhn (Brust oder Keule), Frühlingszwiebeln, Ingwer, Knoblauch, Chilis, brauner Zucker, Piment, Zimt, Muskatnuss, Limettensaft, Öl",
+            "instructions": "1. Alle Zutaten bis auf das Fleisch zusammenfügen und pürieren. 2. Über Nacht das Fleisch marinieren lassen 3. Auf dem Grill oder im Ofen bei 180° garen bis das Fleisch knusprig ist.",
+            "tag_names": ["Laktosefrei", "Halal", "Enthält keine Nüsse", "Karibisch", "Deftig", "Einfach", "Dauert"],
+        },
+        {
+            "title": "Zucchini-Frikadellen",
+            "description": "Leckere vegetarische Zucchini-Puffer",
+            "ingredients": "2-3 Zucchinis, 1-2 Eier, Zwiebeln, Knoblauch, Mehl/Paniermehl oder Reis, Öl, Salz, Pfeffer, Paprikapulver, Muskatnuss",
+            "instructions": "1. Die Zwiebeln, Knoblauch und Zucchinis reiben. 2. Gemüse und Gewürze mit Eiern vermengen. 3. Zusammen mit etwas Mehl oder ein wenig gekochtem Reis zu kleinen Fladen formen. 4. In etwas Öl scharf anbraten.",
+            "tag_names": ["Vegetarisch", "Halal", "Laktosefrei", "Enthält keine Nüsse", "Leicht", "Einfach", "Schnell"],
+        },
+    ]
+
+
 def seed_database():
     db = SessionLocal()
     try:
@@ -87,49 +123,28 @@ def seed_database():
             db.add_all(tags_to_add)
             db.commit()
 
+        tag_lookup: dict[str, Tag] = {}
+        for tag in db.query(Tag).all():
+            tag_lookup[str(tag.name)] = tag
+
+        for recipe_data in _build_seed_recipes(tag_lookup):
+            recipe = db.query(Recipe).filter(Recipe.title == recipe_data["title"]).first()
+            if recipe is None:
+                recipe = Recipe(
+                    title=recipe_data["title"],
+                    description=recipe_data["description"],
+                    ingredients=recipe_data["ingredients"],
+                    instructions=recipe_data["instructions"],
+                )
+                db.add(recipe)
+                db.flush()
+
+            recipe.description = recipe_data["description"]
+            recipe.ingredients = recipe_data["ingredients"]
+            recipe.instructions = recipe_data["instructions"]
+            recipe.tags = [tag_lookup[name] for name in recipe_data["tag_names"]]
+
         db.commit()
-
-        if db.query(Recipe).count() == 0:
-            tag_lookup: dict[str, Tag] = {}
-            for tag in db.query(Tag).all():
-                tag_lookup[str(tag.name)] = tag
-
-            rezept1 = Recipe(
-                title="Gemüsecurry",
-                description="Ein veganes Gemüsecurry mit Kokosmilch und Reis",
-                ingredients="250g Reis, 500ml Kokosmilch, div. Gemüse (Paprika, Zwiebeln, Sojasprossen, etc.), Gewürze (Salz, weißer Pfeffer, Kreuzkümmel, Chilipulver)",
-                instructions="1. Reis nach Packungsanweisungen kochen. 2. Zwiebeln und anderes Gemüse anbraten. 3. Würzen 4. Kokosmilch hinzugeben 5. ggf. Nachwürzen und mit Reis servieren",
-                tags=[
-                    tag_lookup["Vegetarisch"], tag_lookup["Vegan"], tag_lookup["Halal"], tag_lookup["Glutenfrei"], tag_lookup["Laktosefrei"], tag_lookup["Enthält keine Nüsse"],
-                    tag_lookup["Asiatisch"], tag_lookup["Leicht"], tag_lookup["Schnell"], tag_lookup["Thai"], tag_lookup["Vietnamesisch"], tag_lookup["Chinesisch"]
-                ]
-            )
-            rezept2 = Recipe(
-                title="Spaghetti Bolognese",
-                description="Ein klassisches italienisches Gericht",
-                ingredients="500 Hack, 500ml passierte Tomaten, Tomatenmark, Zwiebeln, Karotten und ggf. Staudensellerie, Gewürze (Salz, Pfeffer, *Chilipulver, Basilikum), *Knoblauch, Tagliatelle",
-                instructions="1. Zwiebeln und anderes Gemüse anbraten. 2. Wenn gewollt, Knoblauch hinzufügen (aufpassen, dass dieser nicht anbrennt) 3. Hack hinzugeben und anbraten, Tomatenmark ebenfalls"
-                             "3. Würzen und passierte Tomaten hinzugeben 4. mind. halbe Stunde köcheln lassen 5. Nudeln nach Packungsanweisungen kochen und zur Bolognese hinzugeben 6. ggf. Nachwürzen und mit frischem Basilikum servieren",
-                tags=[tag_lookup["Laktosefrei"], tag_lookup["Halal"], tag_lookup["Enthält keine Nüsse"], tag_lookup["Italienisch"], tag_lookup["Deftig"], tag_lookup["Dauert"], tag_lookup["Einfach"]]
-            )
-            rezept3 = Recipe(
-                title="Jerk Chicken",
-                description="Ein Klassiker aus Jamaika",
-                ingredients="500g Huhn (Brust oder Keule), Frühlingszwiebeln, Ingwer, Knoblauch, Chilis, brauner Zucker, Piment, Zimt, Muskatnuss, Limettensaft, Öl",
-                instructions="1. Alle Zutaten bis auf das Fleisch zusammenfügen und pürieren. 2. Über Nacht das Fleisch marinieren lassen 3. Auf dem Grill oder im Ofen bei 180° garen bis das Fleiscch knusprig ist.",
-                tags=[tag_lookup["Laktosefrei"], tag_lookup["Halal"], tag_lookup["Enthält keine Nüsse"], tag_lookup["Karibisch"], tag_lookup["Deftig"], tag_lookup["Einfach"], tag_lookup["Dauert"]]
-            )
-
-            rezept4 = Recipe(
-                title="Zucchini-Frikadellen",
-                description="Leckere vegetarische Zucchini-Puffer",
-                ingredients="2-3 Zucchinis, 1-2 Eier, Zwiebeln, Knoblauch, Mehl/Paniermehl oder Reis, Öl, Salz, Pfeffer, Paprikapulver, Muskatnuss",
-                instructions="1. Die Zwiebeln, Knoblauch und Zucchinis reiben. 2. Gemüse und Gewürze mit Eiern vermengen. 3. Zusammen mit etwas Mehl oder ein wenig gekochtem Reis zu kleinen Fladen formen. 4. In etwas Öl scharf anbraten.",
-                tags=[tag_lookup["Vegetarisch"], tag_lookup["Halal"], tag_lookup["Laktosefrei"], tag_lookup["Enthält keine Nüsse"], tag_lookup["Leicht"], tag_lookup["Einfach"], tag_lookup["Schnell"]]
-            )
-
-            db.add_all([rezept1, rezept2, rezept3, rezept4])
-            db.commit()
 
         if db.query(User).count() == 0:
             user1 = User(name="Jesse", password="test", tags=[db.query(Tag).filter(Tag.name == "Italienisch").first(), db.query(Tag).filter(Tag.name == "Asiatisch").first()])

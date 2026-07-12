@@ -25,6 +25,44 @@ const sampleRecipes = [
 const recipeContainer = document.getElementById('recipe-container');
 const refreshButton = document.getElementById('refresh-button');
 const recipeExampleList = document.getElementById('recipe-example-list');
+const loadDailyDishButton = document.getElementById('load-daily-dish-button');
+const dailyDishResult = document.getElementById('daily-dish-result');
+const dailyDishTitle = document.getElementById('daily-dish-title');
+const dailyDishDescription = document.getElementById('daily-dish-description');
+const dailyDishIngredients = document.getElementById('daily-dish-ingredients');
+const dailyDishInstructions = document.getElementById('daily-dish-instructions');
+const dailyDishTags = document.getElementById('daily-dish-tags');
+
+function formatIngredientLines(ingredientsText) {
+    return ingredientsText
+        .split(',')
+        .map(item => item.trim())
+        .filter(Boolean)
+        .map(item => `<li class="ingredient-line">${item}</li>`)
+        .join('');
+}
+
+function formatInstructionSteps(instructionsText) {
+    return instructionsText
+        .split(/(?=\d+\.)/)
+        .map(step => step.trim())
+        .filter(Boolean)
+        .map(step => `<p class="instruction-step">${step}</p>`)
+        .join('');
+}
+
+function renderDailyDish(recipe) {
+    if (!dailyDishResult || !dailyDishTitle || !dailyDishDescription || !dailyDishIngredients || !dailyDishInstructions || !dailyDishTags) return;
+
+    dailyDishResult.classList.remove('hidden');
+    dailyDishTitle.textContent = recipe.title;
+    dailyDishDescription.textContent = recipe.description;
+    dailyDishIngredients.innerHTML = `<ul>${formatIngredientLines(recipe.ingredients)}</ul>`;
+    dailyDishInstructions.innerHTML = formatInstructionSteps(recipe.instructions);
+    dailyDishTags.innerHTML = (recipe.tags || [])
+        .map(tag => `<span class="tag-pill">${tag}</span>`)
+        .join('');
+}
 
 function renderRecipe(recipe) {
     if (!recipeContainer) return;
@@ -63,6 +101,42 @@ function renderRecipeExamples(recipes) {
 if (refreshButton) {
     refreshButton.addEventListener('click', () => {
         renderRecipe(pickRandomRecipes(1)[0]);
+    });
+}
+
+if (loadDailyDishButton && dailyDishResult) {
+    loadDailyDishButton.addEventListener('click', async () => {
+        const userId = loadDailyDishButton.dataset.userId;
+
+        if (!userId) {
+            dailyDishTitle.textContent = 'Bitte logge dich ein';
+            dailyDishDescription.textContent = 'Der Daily Dish-Vorschlag steht nur für angemeldete Nutzer zur Verfügung.';
+            dailyDishIngredients.innerHTML = '';
+            dailyDishInstructions.innerHTML = '';
+            dailyDishTags.innerHTML = '';
+            dailyDishResult.classList.remove('hidden');
+            loadDailyDishButton.classList.add('hidden');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/suggestions/${userId}`);
+            if (!response.ok) {
+                throw new Error('Keine passende Empfehlung gefunden');
+            }
+
+            const recipe = await response.json();
+            renderDailyDish(recipe);
+            loadDailyDishButton.classList.add('hidden');
+        } catch (error) {
+            dailyDishTitle.textContent = 'Kein passender Vorschlag';
+            dailyDishDescription.textContent = 'Für deinen aktuellen Tag-Stand gibt es noch keinen passenden Vorschlag.';
+            dailyDishIngredients.innerHTML = '';
+            dailyDishInstructions.innerHTML = '';
+            dailyDishTags.innerHTML = '';
+            dailyDishResult.classList.remove('hidden');
+            loadDailyDishButton.classList.add('hidden');
+        }
     });
 }
 

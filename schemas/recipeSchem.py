@@ -14,6 +14,7 @@ class RecipeResponse(BaseModel):
     description: str
     ingredients: str
     instructions: str
+    tags: list[str] = []
 
     class Config:
         from_attributes = True  # Um SQLAlchemy Sachen zu konvertieren
