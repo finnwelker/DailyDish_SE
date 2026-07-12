@@ -60,11 +60,11 @@ def find_best_recipe(user: User, db: Session, skip_id: int | None = None):
     if not valid_recipes:
         user.suggestion_history.clear()
         db.commit()
-        valid_recipes = [
-            r for r in recipes
-            if r.id != skip_id
-            if required_tags.issubset({tag.name for tag in r.tags})
-        ]
+        valid_recipes = []
+        for r in recipes:
+            recipe_id: int = r.id  # type: ignore
+            if (skip_id is None or recipe_id != skip_id) and required_tags.issubset({tag.name for tag in r.tags}):
+                valid_recipes.append(r)
 
     if not valid_recipes:
         return None

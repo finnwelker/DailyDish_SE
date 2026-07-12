@@ -22,7 +22,7 @@ app = FastAPI(title="DailyDish API")
 
 app.mount("/static", StaticFiles(directory=BASE_DIR / "static"), name="static")
 
-def auth_context(request: Request) -> dict[str, bool]:
+def auth_context(request: Request) -> dict[str, bool | int]:
     return {"is_logged_in": bool(request.cookies.get("user_id")), "cache_version": int(time.time())}
 
 def user_context(request: Request) -> dict[str, object]:
