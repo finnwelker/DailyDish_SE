@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Wähle deine Tags{% endblock %}
+
+{% block content %}
+<section class="auth-card tag-onboarding-card">
+    <div class="card">
+        <div class="eyebrow">Tag-Auswahl</div>
+        <h2>Wähle deine Lieblings-Tags</h2>
+        <p>Wähle beliebig viele Tags aus, damit DailyDish auf dich abgestimmte Rezepte vorschlagen kann.</p>
+
+        <form id="tag-selection-form" method="post" action="/choose-tags">
+            <div class="tag-pill-list tag-selection-grid">
+                {% for tag in tags %}
+                <button
+                    type="button"
+                    class="tag-pill tag-pill-button{% if tag.id in selected_tag_ids %} selected{% endif %}"
+                    data-tag-id="{{ tag.id }}">{{ tag.name }}</button>
+                {% endfor %}
+            </div>
+
+            <button class="button" type="submit">Speichern</button>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/choose-tags.js"></script>
+{% endblock %}

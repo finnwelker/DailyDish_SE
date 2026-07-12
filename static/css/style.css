@@ -5,6 +5,10 @@ body {
     color: #2c3e50;
 }
 
+button {
+    font: inherit;
+}
+
 header {
     background: #ffffff;
     border-bottom: 1px solid #e1e8ee;
@@ -74,15 +78,82 @@ main {
 .button {
     display: inline-block;
     padding: 14px 22px;
-    background: #3b82f6;
+    background: #2563eb;
     color: white;
-    border-radius: 99px;
+    border: none;
+    border-radius: 999px;
     text-decoration: none;
     font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.button:hover {
+    background: #1d4ed8;
+    transform: translateY(-1px);
 }
 
 .button + .button {
     margin-left: 12px;
+}
+
+#tag-selection-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#tag-selection-form .button {
+    width: auto;
+    min-width: 140px;
+    padding: 16px 24px;
+    margin: 0 auto;
+    background: #2563eb;
+    box-shadow: 0 6px 14px rgba(37, 99, 235, 0.2);
+}
+
+#tag-selection-form .button:hover {
+    background: #1d4ed8;
+}
+
+.dashboard-tags-section {
+    margin-bottom: 24px;
+}
+
+.my-tags-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+}
+
+.my-tags-card .tag-pill-list {
+    margin-top: 0;
+}
+
+.my-tags-card .button {
+    margin-top: 4px;
+}
+
+.dashboard-edit-tags-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ffffff;
+    color: #2563eb;
+    border: 1px solid #2563eb;
+    box-shadow: none;
+}
+
+.dashboard-edit-tags-button:hover {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #1d4ed8;
+}
+
+.pen-icon {
+    font-size: 0.95rem;
+    line-height: 1;
 }
 
 .overview-grid {
@@ -139,9 +210,22 @@ main {
     padding: 8px 12px;
     background: #eef7ff;
     color: #2e2e2e;
+    border: 1px solid #c9ddff;
     border-radius: 999px;
     font-size: 0.95rem;
     font-weight: 400;
+    cursor: pointer;
+    transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.tag-pill:hover {
+    background: #dbeafe;
+}
+
+.tag-pill.selected {
+    background: #2563eb;
+    color: #ffffff;
+    border-color: #2563eb;
 }
 
 .suggestion-list {
@@ -183,6 +267,10 @@ footer {
     margin: 28px auto;
 }
 
+.tag-onboarding-card {
+    max-width: 760px;
+}
+
 .auth-card form {
     display: grid;
     gap: 16px;
@@ -205,6 +293,13 @@ footer {
 
 .auth-card button {
     width: 100%;
+}
+
+.tag-selection-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
 }
 
 .auth-message,

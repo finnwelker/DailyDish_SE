@@ -21,6 +21,27 @@
     </div>
 </section>
 
+{% if is_logged_in and user %}
+<section class="dashboard-tags-section">
+    <div class="card my-tags-card">
+        <h3>Meine Tags</h3>
+        {% if user.tags %}
+        <div class="tag-pill-list">
+            {% for tag in user.tags %}
+            <span class="tag-pill">{{ tag.name }}</span>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p>Du hast noch keine Tags ausgewählt.</p>
+        {% endif %}
+        <a class="button dashboard-edit-tags-button" href="/choose-tags">
+            <span class="pen-icon" aria-hidden="true">✎</span>
+            Tags bearbeiten
+        </a>
+    </div>
+</section>
+{% endif %}
+
 <section class="overview-grid">
     <div class="card">
         <h3>Rezept-Beispiele</h3>

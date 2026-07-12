@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from database import get_db
+from models.tag import Tag
 from models.user import User
 from schemas.userSchema import UserCreate, UserResponse
 import hashlib
@@ -16,6 +17,19 @@ def hash_password(password: str) -> str:
 
 def verify_password(password: str, password_hash: str) -> bool:
     return hash_password(password) == password_hash
+
+
+def get_authenticated_user(request: Request, db: Session):
+    user_id = request.cookies.get("user_id")
+    if not user_id:
+        return None
+
+    try:
+        user_id_value = int(user_id)
+    except ValueError:
+        return None
+
+    return db.query(User).filter(User.id == user_id_value).first()
 
 
 @router.post("/", response_model=UserResponse)
@@ -108,9 +122,46 @@ async def login_submit(request: Request, db: Session = Depends(get_db)):
             {"request": request, "error": "Benutzername oder Passwort ist ungültig."}
         )
 
-    response = RedirectResponse(url="/dashboard", status_code=303)
+    next_page = "/dashboard" if user.tags else "/choose-tags"
+    response = RedirectResponse(url=next_page, status_code=303)
     response.set_cookie("user_id", str(user.id), httponly=True, samesite="lax")
     return response
+
+
+@auth_router.get("/choose-tags")
+def choose_tags_form(request: Request, db: Session = Depends(get_db)):
+    user = get_authenticated_user(request, db)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
+
+    tags = db.query(Tag).order_by(Tag.name).all()
+    selected_tag_ids = [tag.id for tag in user.tags]
+    return request.app.state.templates.TemplateResponse(
+        request,
+        "choose_tags.html",
+        {
+            "request": request,
+            "user": user,
+            "tags": tags,
+            "selected_tag_ids": selected_tag_ids,
+        }
+    )
+
+
+@auth_router.post("/choose-tags")
+async def save_selected_tags(request: Request, db: Session = Depends(get_db)):
+    user = get_authenticated_user(request, db)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
+
+    form = await request.form()
+    selected_tag_ids = [int(tag_id) for tag_id in form.getlist("tag_ids") if str(tag_id).strip()]
+    selected_tags = db.query(Tag).filter(Tag.id.in_(selected_tag_ids)).all()
+
+    user.tags = selected_tags
+    db.commit()
+
+    return RedirectResponse(url="/dashboard", status_code=303)
 
 
 @auth_router.get("/logout")
