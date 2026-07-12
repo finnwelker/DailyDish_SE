@@ -8,8 +8,8 @@ router = APIRouter(prefix="/suggestions", tags=["Suggestions"])
 
 
 @router.get("/{user_id}", response_model=RecipeResponse)
-def suggest_recipe(user_id: int, db: Session = Depends(get_db)):
-    recipe = get_suggestion(user_id, db)
+def suggest_recipe(user_id: int, skip: bool = False, db: Session = Depends(get_db)):
+    recipe = get_suggestion(user_id, db, skip=skip)
 
     if not recipe:
         raise HTTPException(status_code=404, detail="Kein passendes Rezept gefunden")
