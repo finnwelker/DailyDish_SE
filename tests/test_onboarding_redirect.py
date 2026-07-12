@@ -126,6 +126,8 @@ def test_dashboard_shows_user_tags_and_choose_tags_page_preselects_them():
     try:
         tag_one = db.query(Tag).filter(Tag.name == "Asiatisch").one()
         tag_two = db.query(Tag).filter(Tag.name == "Schnell").one()
+        tag_one_id = tag_one.id
+        tag_two_id = tag_two.id
         user = User(name="dashboard_user", password=hash_password("secret"), tags=[tag_one, tag_two])
         db.add(user)
         db.commit()
@@ -154,8 +156,8 @@ def test_dashboard_shows_user_tags_and_choose_tags_page_preselects_them():
     choose_tags_response = client.get("/choose-tags")
     assert choose_tags_response.status_code == 200
     choose_tags_html = choose_tags_response.text
-    assert f'class="tag-pill tag-pill-button selected" data-tag-id="{tag_one.id}"' in choose_tags_html
-    assert f'class="tag-pill tag-pill-button selected" data-tag-id="{tag_two.id}"' in choose_tags_html
+    assert f'class="tag-pill tag-pill-button selected" data-tag-id="{tag_one_id}"' in choose_tags_html
+    assert f'class="tag-pill tag-pill-button selected" data-tag-id="{tag_two_id}"' in choose_tags_html
 
     app.dependency_overrides.clear()
 

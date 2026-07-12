@@ -12,10 +12,7 @@
         <form id="tag-selection-form" method="post" action="/choose-tags">
             <div class="tag-pill-list tag-selection-grid">
                 {% for tag in tags %}
-                <button
-                    type="button"
-                    class="tag-pill tag-pill-button{% if tag.id in selected_tag_ids %} selected{% endif %}"
-                    data-tag-id="{{ tag.id }}">{{ tag.name }}</button>
+                <button type="button" class="tag-pill tag-pill-button{% if tag.id in selected_tag_ids %} selected{% endif %}" data-tag-id="{{ tag.id }}">{{ tag.name }}</button>
                 {% endfor %}
             </div>
 

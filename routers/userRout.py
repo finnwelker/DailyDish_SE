@@ -159,6 +159,8 @@ async def save_selected_tags(request: Request, db: Session = Depends(get_db)):
     selected_tags = db.query(Tag).filter(Tag.id.in_(selected_tag_ids)).all()
 
     user.tags = selected_tags
+    # Clear suggestion history so new recipes are recommended based on updated tags
+    user.suggestion_history.clear()
     db.commit()
 
     return RedirectResponse(url="/dashboard", status_code=303)

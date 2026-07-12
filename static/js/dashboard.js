@@ -55,13 +55,25 @@ function renderDailyDish(recipe) {
     if (!dailyDishResult || !dailyDishTitle || !dailyDishDescription || !dailyDishIngredients || !dailyDishInstructions || !dailyDishTags) return;
 
     dailyDishResult.classList.remove('hidden');
+
+    const actionRow = document.getElementById('daily-dish-action-row');
+    if (actionRow) actionRow.style.display = 'flex';
+
     dailyDishTitle.textContent = recipe.title;
     dailyDishDescription.textContent = recipe.description;
     dailyDishIngredients.innerHTML = `<ul>${formatIngredientLines(recipe.ingredients)}</ul>`;
     dailyDishInstructions.innerHTML = formatInstructionSteps(recipe.instructions);
     dailyDishTags.innerHTML = (recipe.tags || [])
-        .map(tag => `<span class="tag-pill">${tag}</span>`)
+        .map(tag => `<span class="tag-pill">${tag.name}</span>`)
         .join('');
+
+    const addToFavouritesButton = document.getElementById('add-to-favourites-button');
+    if (addToFavouritesButton && recipe.id) {
+        addToFavouritesButton.dataset.recipeId = recipe.id;
+        addToFavouritesButton.innerHTML = '<span class="btn-icon">&#x2661;</span>Zu Favoriten hinzufügen';
+        addToFavouritesButton.dataset.added = 'false';
+        addToFavouritesButton.disabled = false;
+    }
 }
 
 function renderRecipe(recipe) {
@@ -141,3 +153,45 @@ if (loadDailyDishButton && dailyDishResult) {
 }
 
 renderRecipeExamples(pickRandomRecipes(2));
+
+const addToFavouritesButton = document.getElementById('add-to-favourites-button');
+if (addToFavouritesButton && loadDailyDishButton) {
+    // Hover behavior: show "Aus Favoriten entfernen" on hover if added
+    addToFavouritesButton.addEventListener('mouseenter', () => {
+        if (addToFavouritesButton.dataset.added === 'true') {
+            addToFavouritesButton.innerHTML = '<span class="btn-icon">&#x2665;</span>Aus Favoriten entfernen';
+        }
+    });
+
+    addToFavouritesButton.addEventListener('mouseleave', () => {
+        if (addToFavouritesButton.dataset.added === 'true') {
+            addToFavouritesButton.innerHTML = '<span class="btn-icon">&#x2665;</span>In Favoriten gespeichert';
+        }
+    });
+
+    addToFavouritesButton.addEventListener('click', async () => {
+        const userId = loadDailyDishButton.dataset.userId;
+        const recipeId = addToFavouritesButton.dataset.recipeId;
+        if (!userId || !recipeId) return;
+
+        const isAdded = addToFavouritesButton.dataset.added === 'true';
+
+        try {
+            if (!isAdded) {
+                const res = await fetch(`/user/${userId}/favourites/${recipeId}`, { method: 'POST' });
+                if (res.ok || res.status === 400) {
+                    addToFavouritesButton.innerHTML = '<span class="btn-icon">&#x2665;</span>In Favoriten gespeichert';
+                    addToFavouritesButton.dataset.added = 'true';
+                }
+            } else {
+                const res = await fetch(`/user/${userId}/favourites/${recipeId}`, { method: 'DELETE' });
+                if (res.ok || res.status === 400) {
+                    addToFavouritesButton.innerHTML = '<span class="btn-icon">&#x2661;</span>Zu Favoriten hinzufügen';
+                    addToFavouritesButton.dataset.added = 'false';
+                }
+            }
+        } catch (e) {
+            console.error('Fehler beim Aktualisieren der Favoriten:', e);
+        }
+    });
+}

@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from schemas.tagSchema import TagResponse
 
 
 # Erstelle Rezept ohne ID (macht DB)
@@ -14,7 +15,7 @@ class RecipeResponse(BaseModel):
     description: str
     ingredients: str
     instructions: str
-    tags: list[str] = []
+    tags: list[TagResponse] = []
 
     class Config:
         from_attributes = True  # Um SQLAlchemy Sachen zu konvertieren

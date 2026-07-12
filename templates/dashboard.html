@@ -23,34 +23,45 @@
 
 {% if is_logged_in and user %}
 <section class="daily-dish-section">
-    <div class="card daily-dish-card">
-        <div class="daily-dish-cta">
-            <button id="load-daily-dish-button" class="daily-dish-button" type="button" data-user-id="{{ user.id }}">Load Daily Dish</button>
+    <div class="daily-dish-card">
+        <div class="daily-dish-inner-card">
+            <div class="daily-dish-cta">
+                <button id="load-daily-dish-button" class="daily-dish-button" type="button" data-user-id="{{ user.id }}">Load Daily Dish</button>
+            </div>
+
+            <div id="daily-dish-result" class="daily-dish-result hidden">
+                <div class="daily-dish-top-grid">
+                    <div class="daily-dish-copy">
+                        <div class="eyebrow">Daily Dish Vorschlag</div>
+                        <h3 id="daily-dish-title"></h3>
+                        <p id="daily-dish-description" class="daily-dish-description"></p>
+                    </div>
+                    <aside class="daily-dish-tags-panel">
+                        <h4>Tags</h4>
+                        <div id="daily-dish-tags" class="tag-pill-list"></div>
+                    </aside>
+                </div>
+
+                <div class="daily-dish-grid">
+                    <div>
+                        <h4>Zutaten</h4>
+                        <div id="daily-dish-ingredients" class="daily-dish-ingredients"></div>
+                    </div>
+                    <div>
+                        <h4>Zubereitung</h4>
+                        <div id="daily-dish-instructions" class="daily-dish-instructions"></div>
+                    </div>
+                </div>
+            </div>
         </div>
 
-        <div id="daily-dish-result" class="daily-dish-result hidden">
-            <div class="daily-dish-top-grid">
-                <div class="daily-dish-copy">
-                    <div class="eyebrow">Daily Dish Vorschlag</div>
-                    <h3 id="daily-dish-title"></h3>
-                    <p id="daily-dish-description" class="daily-dish-description"></p>
-                </div>
-                <aside class="daily-dish-tags-panel">
-                    <h4>Tags</h4>
-                    <div id="daily-dish-tags" class="tag-pill-list"></div>
-                </aside>
-            </div>
-
-            <div class="daily-dish-grid">
-                <div>
-                    <h4>Zutaten</h4>
-                    <div id="daily-dish-ingredients" class="daily-dish-ingredients"></div>
-                </div>
-                <div>
-                    <h4>Zubereitung</h4>
-                    <div id="daily-dish-instructions" class="daily-dish-instructions"></div>
-                </div>
-            </div>
+        <div id="daily-dish-action-row" class="daily-dish-action-row" style="display: none;">
+            <button id="add-to-favourites-button" class="button dashboard-edit-tags-button favourite-button" type="button">
+                <span class="btn-icon">&#x2661;</span>Zu Favoriten hinzuf&uuml;gen
+            </button>
+            <a class="button dashboard-edit-tags-button" href="/favourites">
+                <span class="btn-icon">&#x2606;</span>Meine Favoriten
+            </a>
         </div>
     </div>
 </section>
@@ -101,5 +112,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/js/dashboard.js"></script>
+<script src="/static/js/dashboard.js?v={{ cache_version }}"></script>
 {% endblock %}

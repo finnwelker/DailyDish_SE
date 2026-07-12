@@ -36,7 +36,7 @@ def get_last_suggestion(user:User):
     return max(user.suggestion_history, key=lambda x: x.suggestion_time)
 
 
-def find_best_recipe(user: User, db: Session, skip_id: int = None):
+def find_best_recipe(user: User, db: Session, skip_id: int | None = None):
     # MIt Jaccard das beste noch nicht gesehene Rezept auswählen
     seen_ids = {entry.recipe_id for entry in user.suggestion_history}
 

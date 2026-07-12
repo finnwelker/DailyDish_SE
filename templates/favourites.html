@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+
+{% block title %}Meine Favoriten – DailyDish{% endblock %}
+
+{% block content %}
+
+<section id="favourites-page" {% if user %}data-user-id="{{ user.id }}"{% endif %}>
+    <div class="eyebrow">Meine Sammlung</div>
+    <h2 style="margin: 4px 0 24px;">Meine Favoriten</h2>
+
+    {% if favourites %}
+    <div class="favourites-grid">
+        {% for recipe in favourites %}
+        <div class="fav-card-outer"
+             id="fav-card-{{ recipe.id }}"
+             data-recipe-id="{{ recipe.id }}"
+             data-title="{{ recipe.title | e }}"
+             data-description="{{ recipe.description | e }}"
+             data-ingredients="{{ recipe.ingredients | e }}"
+             data-instructions="{{ recipe.instructions | e }}"
+             data-tags="{{ recipe.tags | map(attribute='name') | join(',') | e }}">
+            <div class="fav-card-inner">
+                <div class="flip-card-scene">
+                    <div class="flip-card-flipper">
+                        <div class="flip-card-front">
+                            <div class="fav-card-image">
+                                <img src="/static/images/recipes/{{ recipe.id }}.jpg"
+                                     onload="this.classList.add('image-loaded')"
+                                     onerror="this.classList.add('image-failed')"
+                                     alt="{{ recipe.title | e }}">
+                                <span class="fav-card-placeholder-icon">&#x1F37D;&#xFE0F;</span>
+                                <h3 class="fav-card-title-overlay">{{ recipe.title }}</h3>
+                            </div>
+                        </div>
+                        <div class="flip-card-back">
+                            <p>{{ recipe.description }}</p>
+                            {% if recipe.tags %}
+                            <div>
+                                <h4>Tags</h4>
+                                <div class="tag-pill-list">
+                                    {% for tag in recipe.tags %}
+                                    <span class="tag-pill">{{ tag.name }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            <div class="flip-card-back-actions">
+                                <button class="remove-favourite-button" type="button"
+                                        data-recipe-id="{{ recipe.id }}"
+                                        onclick="removeFavourite(this)">
+                                    ✕ Entfernen
+                                </button>
+                                <button class="fav-card-show-btn" type="button"
+                                        onclick="openRecipeModal(this.closest('.fav-card-outer'))">
+                                    Anzeigen
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="max-width: 480px; text-align: center; padding: 40px;">
+        <p style="font-size: 2rem; margin: 0 0 12px;">🍽️</p>
+        <p style="color: #6b7280;">Du hast noch keine Favoriten gespeichert.<br>Lade deinen Daily Dish und füge Rezepte hinzu!</p>
+        <a class="button" href="/dashboard" style="margin-top: 20px; display: inline-block;">Zum Dashboard</a>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Recipe detail modal -->
+<div id="recipe-modal" class="recipe-modal-overlay hidden" onclick="closeRecipeModal()">
+    <div class="recipe-modal-content" onclick="event.stopPropagation()">
+        <button class="modal-close-btn" type="button" onclick="closeRecipeModal()">✕</button>
+        <div class="daily-dish-card">
+            <div class="daily-dish-inner-card">
+                <div class="daily-dish-top-grid">
+                    <div class="daily-dish-copy">
+                        <div class="eyebrow">Favorit</div>
+                        <h3 id="modal-title"></h3>
+                        <p id="modal-description" class="daily-dish-description"></p>
+                    </div>
+                    <aside class="daily-dish-tags-panel">
+                        <h4>Tags</h4>
+                        <div id="modal-tags" class="tag-pill-list"></div>
+                    </aside>
+                </div>
+                <div class="daily-dish-grid">
+                    <div>
+                        <h4>Zutaten</h4>
+                        <div id="modal-ingredients" class="daily-dish-ingredients"></div>
+                    </div>
+                    <div>
+                        <h4>Zubereitung</h4>
+                        <div id="modal-instructions" class="daily-dish-instructions"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function formatIngredientLines(text) {
+    return text.split(',').map(i => i.trim()).filter(Boolean)
+        .map(i => `<li class="ingredient-line">${i}</li>`).join('');
+}
+
+function formatInstructionSteps(text) {
+    return text.split(/(?=\d+\.)/).map(s => s.trim()).filter(Boolean)
+        .map(s => `<p class="instruction-step">${s}</p>`).join('');
+}
+
+function openRecipeModal(cardEl) {
+    const modal = document.getElementById('recipe-modal');
+    document.getElementById('modal-title').textContent = cardEl.dataset.title || '';
+    document.getElementById('modal-description').textContent = cardEl.dataset.description || '';
+    document.getElementById('modal-ingredients').innerHTML =
+        '<ul>' + formatIngredientLines(cardEl.dataset.ingredients || '') + '</ul>';
+    document.getElementById('modal-instructions').innerHTML =
+        formatInstructionSteps(cardEl.dataset.instructions || '');
+    document.getElementById('modal-tags').innerHTML =
+        (cardEl.dataset.tags || '').split(',')
+            .map(t => t.trim()).filter(Boolean)
+            .map(t => `<span class="tag-pill">${t}</span>`).join('');
+    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+}
+
+function closeRecipeModal() {
+    const modal = document.getElementById('recipe-modal');
+    modal.classList.add('hidden');
+    modal.style.display = '';
+}
+
+async function removeFavourite(button) {
+    const recipeId = button.dataset.recipeId;
+    const pageEl = document.getElementById('favourites-page');
+    const userId = pageEl ? pageEl.dataset.userId : null;
+    if (!userId || !recipeId) return;
+    try {
+        const response = await fetch(`/user/${userId}/favourites/${recipeId}`, { method: 'DELETE' });
+        if (response.ok) {
+            const card = document.getElementById(`fav-card-${recipeId}`);
+            if (card) {
+                card.style.transition = 'opacity 0.3s ease';
+                card.style.opacity = '0';
+                setTimeout(() => card.remove(), 300);
+            }
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+</script>
+{% endblock %}
