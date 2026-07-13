@@ -82,7 +82,7 @@ cd DailyDish_SE
 ### 2. Abhängigkeiten installieren
 
 ```bash
-pip install fastapi uvicorn sqlalchemy pydantic pytest
+pip install fastapi uvicorn sqlalchemy pydantic pytest python-multipart jinja2 
 ```
 
 ### 3. Datenbank initialisieren & Beispieldaten laden
@@ -137,7 +137,7 @@ FastAPI generiert automatisch eine interaktive Dokumentation:
 #### Vorschlag
 | Methode | Endpunkt | Beschreibung |
 |---|---|---|
-| `GET` | `/suggestions/{user_id}` | Tagesrezept für Nutzer abrufen |
+| `GET` | `/suggestions/{user_id}` | Tagesrezept für Nutzer abrufen, alternativ mit Boolean "skip" um das Rezept zu überspringen |
 
 ---
 
@@ -174,6 +174,7 @@ Die Unit-Tests decken folgende Fälle ab:
 - Pflicht-Tags filtern unpassende Rezepte aus
 - Nutzer nicht gefunden
 - Keine gültigen Rezepte verfügbar
+- etc.
 
 ---
 
@@ -182,7 +183,7 @@ Die Unit-Tests decken folgende Fälle ab:
 Das Projekt wird nach **SCRUM** entwickelt mit 2-wöchigen Sprints. Der aktuelle Stand des Backlogs und der Sprints ist im [GitHub Projects Board](https://github.com/finnwelker/DailyDish_SE/projects) einsehbar.
 
 **Rollen:**
-- Product Owner: – 
+- Product Owner: Jesse, Finn 
 - Scrum Master: – Finn
 - Developer: Finn , Jesse
 
@@ -192,5 +193,5 @@ Das Projekt wird nach **SCRUM** entwickelt mit 2-wöchigen Sprints. Der aktuelle
 
 | Name | Rolle |
 |---|---|
-| Finn Welker | Backend · Algorithmus · Dokumentation |
-| ... | Frontend · UI/UX |
+| Finn | Backend · Algorithmus · Dokumentation |
+| Jesse | Frontend · UI/UX |
