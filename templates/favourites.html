@@ -36,7 +36,6 @@
                             <p>{{ recipe.description }}</p>
                             {% if recipe.tags %}
                             <div>
-                                <h4>Tags</h4>
                                 <div class="tag-pill-list">
                                     {% for tag in recipe.tags %}
                                     <span class="tag-pill">{{ tag.name }}</span>
@@ -98,6 +97,11 @@
                         <div id="modal-instructions" class="daily-dish-instructions"></div>
                     </div>
                 </div>
+                <div class="daily-dish-action-row modal-recipe-action-row">
+                    <button id="download-modal-recipe-button" class="button dashboard-edit-tags-button" type="button" disabled>
+                        <span class="btn-icon">&#x2B07;</span><H3></H3>Herunterladen
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -119,6 +123,7 @@ function formatInstructionSteps(text) {
 
 function openRecipeModal(cardEl) {
     const modal = document.getElementById('recipe-modal');
+    const tags = (cardEl.dataset.tags || '').split(',').map(t => t.trim()).filter(Boolean);
     document.getElementById('modal-title').textContent = cardEl.dataset.title || '';
     document.getElementById('modal-description').textContent = cardEl.dataset.description || '';
     document.getElementById('modal-ingredients').innerHTML =
@@ -126,17 +131,46 @@ function openRecipeModal(cardEl) {
     document.getElementById('modal-instructions').innerHTML =
         formatInstructionSteps(cardEl.dataset.instructions || '');
     document.getElementById('modal-tags').innerHTML =
-        (cardEl.dataset.tags || '').split(',')
-            .map(t => t.trim()).filter(Boolean)
+        tags
             .map(t => `<span class="tag-pill">${t}</span>`).join('');
+
+    window.currentModalRecipe = {
+        title: cardEl.dataset.title || '',
+        description: cardEl.dataset.description || '',
+        ingredients: cardEl.dataset.ingredients || '',
+        instructions: cardEl.dataset.instructions || '',
+        tags: tags
+    };
+
+    const downloadButton = document.getElementById('download-modal-recipe-button');
+    if (downloadButton) {
+        downloadButton.disabled = false;
+    }
+
     modal.classList.remove('hidden');
     modal.style.display = 'flex';
 }
 
 function closeRecipeModal() {
     const modal = document.getElementById('recipe-modal');
+    window.currentModalRecipe = null;
+
+    const downloadButton = document.getElementById('download-modal-recipe-button');
+    if (downloadButton) {
+        downloadButton.disabled = true;
+    }
+
     modal.classList.add('hidden');
     modal.style.display = '';
+}
+
+const downloadModalRecipeButton = document.getElementById('download-modal-recipe-button');
+if (downloadModalRecipeButton) {
+    downloadModalRecipeButton.addEventListener('click', () => {
+        if (window.currentModalRecipe && typeof window.downloadRecipeAsPdf === 'function') {
+            window.downloadRecipeAsPdf(window.currentModalRecipe);
+        }
+    });
 }
 
 async function removeFavourite(button) {

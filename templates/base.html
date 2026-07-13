@@ -5,12 +5,13 @@
     <title>{% block title %}Recipe App{% endblock %}</title>
 
     <link rel="stylesheet" href="/static/css/style.css?v={{ cache_version }}">
+    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 </head>
 
 <body>
 
 <header>
-    <h1>🍳 Daily Dish</h1>
+    <h1><a class="brand-link" href="/dashboard">🍳 Daily Dish</a></h1>
 
     <nav>
         <a href="/dashboard">Dashboard</a>

@@ -32,6 +32,8 @@ const dailyDishDescription = document.getElementById('daily-dish-description');
 const dailyDishIngredients = document.getElementById('daily-dish-ingredients');
 const dailyDishInstructions = document.getElementById('daily-dish-instructions');
 const dailyDishTags = document.getElementById('daily-dish-tags');
+const downloadDailyDishButton = document.getElementById('download-daily-dish-button');
+let currentDailyDishRecipe = null;
 
 function formatIngredientLines(ingredientsText) {
     return ingredientsText
@@ -67,6 +69,11 @@ function renderDailyDish(recipe) {
         .map(tag => `<span class="tag-pill">${tag.name}</span>`)
         .join('');
 
+    currentDailyDishRecipe = recipe;
+    if (downloadDailyDishButton) {
+        downloadDailyDishButton.disabled = false;
+    }
+
     const addToFavouritesButton = document.getElementById('add-to-favourites-button');
     if (addToFavouritesButton && recipe.id) {
         addToFavouritesButton.dataset.recipeId = recipe.id;
@@ -74,6 +81,19 @@ function renderDailyDish(recipe) {
         addToFavouritesButton.dataset.added = 'false';
         addToFavouritesButton.disabled = false;
     }
+}
+
+if (downloadDailyDishButton) {
+    downloadDailyDishButton.addEventListener('click', () => {
+        if (!currentDailyDishRecipe || typeof window.downloadRecipeAsPdf !== 'function') return;
+        window.downloadRecipeAsPdf({
+            title: currentDailyDishRecipe.title,
+            description: currentDailyDishRecipe.description,
+            ingredients: currentDailyDishRecipe.ingredients,
+            instructions: currentDailyDishRecipe.instructions,
+            tags: (currentDailyDishRecipe.tags || []).map(tag => tag.name || tag)
+        });
+    });
 }
 
 function renderRecipe(recipe) {
