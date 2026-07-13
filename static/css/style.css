@@ -210,9 +210,9 @@ main {
 .daily-dish-button-label {
     z-index: 2;
     margin: 0;
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 700;
-    letter-spacing: 4px;
+    letter-spacing: 4.5px;
     color: #ffffff;
     text-shadow: 0 0 4px #ffffff;
 }

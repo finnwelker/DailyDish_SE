@@ -69,8 +69,21 @@ def verify_password(password: str, password_hash: str) -> bool:
     return hash_password(password) == password_hash
 
 @app.get("/")
-def root():
-    return {"message": "DailyDish API läuft!"}
+def root(request: Request, db: Session = Depends(get_db)):
+    user_id = request.cookies.get("user_id")
+    if not user_id:
+        return RedirectResponse(url="/login", status_code=303)
+
+    try:
+        user_id_value = int(user_id)
+    except ValueError:
+        return RedirectResponse(url="/login", status_code=303)
+
+    user_exists = db.query(User.id).filter(User.id == user_id_value).first()
+    if user_exists:
+        return RedirectResponse(url="/dashboard", status_code=303)
+
+    return RedirectResponse(url="/login", status_code=303)
 
 @app.get("/dashboard")
 def dashboard(request: Request, db: Session = Depends(get_db)):
