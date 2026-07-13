@@ -89,10 +89,10 @@
 </section>
 {% endif %}
 
-<section class="overview-grid">
+<section id="recipe-examples-section" class="overview-grid" {% if user %}data-user-id="{{ user.id }}"{% endif %}>
     <div class="card">
         <h3>Rezept-Beispiele</h3>
-        <div id="recipe-example-list" class="suggestion-list">
+        <div id="recipe-example-list" class="recipe-example-list">
             <p>Loading recipe examples...</p>
         </div>
     </div>
@@ -107,6 +107,42 @@
         </div>
     </div>
 </section>
+
+<div id="dashboard-recipe-modal" class="recipe-modal-overlay hidden">
+    <div class="recipe-modal-content">
+        <button id="dashboard-modal-close-button" class="modal-close-btn" type="button">✕</button>
+        <div class="daily-dish-card">
+            <div class="daily-dish-inner-card">
+                <div class="daily-dish-top-grid">
+                    <div class="daily-dish-copy">
+                        <div class="eyebrow">Rezept-Details</div>
+                        <h3 id="dashboard-modal-title"></h3>
+                        <p id="dashboard-modal-description" class="daily-dish-description"></p>
+                    </div>
+                    <aside class="daily-dish-tags-panel">
+                        <h4>Tags</h4>
+                        <div id="dashboard-modal-tags" class="tag-pill-list"></div>
+                    </aside>
+                </div>
+                <div class="daily-dish-grid">
+                    <div>
+                        <h4>Zutaten</h4>
+                        <div id="dashboard-modal-ingredients" class="daily-dish-ingredients"></div>
+                    </div>
+                    <div>
+                        <h4>Zubereitung</h4>
+                        <div id="dashboard-modal-instructions" class="daily-dish-instructions"></div>
+                    </div>
+                </div>
+                <div class="daily-dish-action-row modal-recipe-action-row">
+                    <button id="dashboard-modal-add-favourite-button" class="button dashboard-edit-tags-button" type="button" disabled>
+                        <span class="btn-icon">&#x2661;</span>Zu Favoriten hinzufügen
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <footer>
     <p>DailyDish-Prototyp — starte <code>python -m uvicorn main:app --reload</code> und öffne <strong>/dashboard</strong>.</p>
