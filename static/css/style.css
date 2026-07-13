@@ -719,6 +719,19 @@ main {
     margin-right: 5px;
 }
 
+.btn-icon .fa-light.fa-heart,
+.btn-icon .fa-solid.fa-heart {
+    font-size: 0.95em;
+    line-height: 1;
+    font-style: normal;
+}
+
+.btn-icon .fa-light.fa-heart::before {
+    content: "\f004";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 400;
+}
+
 .btn-icon--download {
     display: inline-flex;
     align-items: center;

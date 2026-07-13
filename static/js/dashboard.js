@@ -32,9 +32,9 @@ let recipesById = new Map();
 let favouriteRecipeIds = new Set();
 
 const favouriteButtonLabels = {
-    add: '<span class="btn-icon">&#x2661;</span>Zu Favoriten hinzufügen',
-    saved: '<span class="btn-icon">&#x2665;</span>In Favoriten gespeichert',
-    remove: '<span class="btn-icon">&#x2665;</span>Aus Favoriten entfernen'
+    add: '<span class="btn-icon" aria-hidden="true"><i class="fa-light fa-heart"></i></span>Zu Favoriten hinzufügen',
+    saved: '<span class="btn-icon" aria-hidden="true"><i class="fa-solid fa-heart"></i></span>In Favoriten gespeichert',
+    remove: '<span class="btn-icon" aria-hidden="true"><i class="fa-solid fa-heart"></i></span>Aus Favoriten entfernen'
 };
 
 function formatIngredientLines(ingredientsText) {
