@@ -109,6 +109,48 @@ def _build_seed_recipes(tag_lookup: dict[str, Tag]):
             "instructions": "1. Die Zwiebeln, Knoblauch und Zucchinis reiben. 2. Gemüse und Gewürze mit Eiern vermengen. 3. Zusammen mit etwas Mehl oder ein wenig gekochtem Reis zu kleinen Fladen formen. 4. In etwas Öl scharf anbraten.",
             "tag_names": ["Vegetarisch", "Halal", "Laktosefrei", "Enthält keine Nüsse", "Leicht", "Einfach", "Schnell"],
         },
+        {
+            "title": "Shakshuka",
+            "description": "Nordafrikanisches Gericht mit Eiern in würziger Tomatensauce",
+            "ingredients": "4 Eier, 400g gehackte Tomaten, 1 Paprika, 1 Zwiebel, Knoblauch, Kreuzkümmel, Paprikapulver, Chili, Feta optional",
+            "instructions": "1. Zwiebeln und Paprika anbraten. 2. Gewürze und Tomaten hinzufügen. 3. Eier direkt in die Sauce aufschlagen. 4. Eier abgedeckt pochieren.",
+            "tag_names": ["Vegetarisch", "Laktosefrei", "Afrikanisch", "Scharf", "Mediterran", "Enthält keine Nüsse", "Halal"],
+        },
+        {
+            "title": "Pad Thai",
+            "description": "Klassischer thailändischer gebratener Reisnudeln mit Erdnüssen",
+            "ingredients": "200g Reisnudeln, 2 Eier, 100g Tofu, Sojasprossen, Frühlingszwiebeln, Erdnüsse, Tamarindenpaste, Fischsauce, Zucker, Limette",
+            "instructions": "1. Nudeln einweichen. 2. Tofu anbraten. 3. Eier gerührt dazugeben. 4. Nudeln und Sauce hinzufügen. 5. Mit Sprossen, Erdnüssen und Limette servieren.",
+            "tag_names": ["Vegetarisch", "Thai", "Scharf", "Asiatisch", "Halal"],
+        },
+        {
+            "title": "Hummus Bowl",
+            "description": "Mediterrane Bowl mit selbstgemachtem Hummus und geröstetem Gemüse",
+            "ingredients": "400g Kichererbsen, Tahini, Zitrone, Knoblauch, Olivenöl, Paprika, Zucchini, Kirschtomaten, Fladenbrot",
+            "instructions": "1. Kichererbsen mit Tahini, Zitrone und Knoblauch pürieren. 2. Gemüse mit Olivenöl rösten. 3. Alles auf dem Hummus anrichten.",
+            "tag_names": ["Vegan", "Vegetarisch", "Laktosefrei", "Mediterran", "Leicht", "Einfach", "Halal"],
+        },
+        {
+            "title": "Pizza Margherita",
+            "description": "Klassische neapolitanische Pizza mit Tomatensauce und Mozzarella",
+            "ingredients": "300g Mehl, Hefe, Salz, Olivenöl, 200g Tomaten passiert, 150g Mozzarella, frisches Basilikum",
+            "instructions": "1. Teig kneten und mind 1h gehen lassen, opt. über Nacht. 2. Dünn ausrollen. 3. Mit gewürzter Tomatensauce und Mozzarella belegen. 4. Bei 250°C 10 Min backen.",
+            "tag_names": ["Vegetarisch", "Mediterran", "Italienisch", "Halal"],
+        },
+        {
+            "title": "Zwiebelrostbraten",
+            "description": "Klassisches deutsches Schmorgericht mit Röstzwiebeln und Bratensoße",
+            "ingredients": "600g Rostbraten, 4 Zwiebeln, Butterschmalz, Rinderbrühe, Rotwein, Thymian, Lorbeer, Salz, Pfeffer, Spätzle",
+            "instructions": "1. Fleisch scharf anbraten. 2. Zwiebeln karamellisieren. 3. Mit Rotwein ablöschen. 4. Brühe und Kräuter dazu. 5. 1h schmoren. 6. Mit Spätzle servieren.",
+            "tag_names": ["Deutsch", "Deftig", "Komplex", "Halal", "Dauert"],
+        },
+        {
+            "title": "Avocado Toast",
+            "description": "Schnelles Frühstück mit Avocado, Ei und Chiliflocken",
+            "ingredients": "2 Scheiben Vollkornbrot, 1 Avocado, 2 Eier, Chiliflocken, Limettensaft, Salz, Pfeffer, optional Fetakäse",
+            "instructions": "1. Brot toasten. 2. Avocado mit Limettensaft und Salz zerdrücken. 3. Eier nach Wahl zubereiten. 4. Alles auf das Brot legen und mit Chiliflocken bestreuen.",
+            "tag_names": ["Vegetarisch", "Schnell", "Leicht", "Halal", "Laktosefrei"],
+        },
     ]
 
 
