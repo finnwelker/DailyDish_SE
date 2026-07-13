@@ -33,34 +33,58 @@ Der Kern der Anwendung ist ein **Tag-Matching-Algorithmus** auf Basis des Jaccar
 
 ```
 DailyDish_SE/
-├── main.py                  # Einstiegspunkt, FastAPI App
-├── database.py              # Datenbankverbindung, SQLAlchemy Session
-├── seed.py                  # Beispieldaten für Entwicklung
-├── conftest.py              # pytest Konfiguration
+├── main.py                     # Einstiegspunkt, FastAPI App
+├── database.py                 # Datenbankverbindung, SQLAlchemy Session
+├── seed.py                     # Beispieldaten für Entwicklung
+├── conftest.py                 # pytest Konfiguration
 │
 ├── models/
-│   ├── user.py              # SQLAlchemy Modell: User
-│   ├── recipe.py            # SQLAlchemy Modell: Recipe
-│   ├── tag.py               # SQLAlchemy Modell: Tag
-│   └── join_tables.py       # Many-to-Many Join-Tabellen
+│   ├── user.py                 # SQLAlchemy Modell: User
+│   ├── recipe.py               # SQLAlchemy Modell: Recipe
+│   ├── tag.py                  # SQLAlchemy Modell: Tag
+│   ├── suggestion_history.py   # SQLAlchemy Modell: Suggestion History
+│   └── join_tables.py          # Many-to-Many Join-Tabellen
 │
 ├── schemas/
-│   ├── userSchema.py        # Pydantic Schemas: User
-│   ├── recipeSchem.py       # Pydantic Schemas: Recipe
-│   └── tagSchema.py         # Pydantic Schemas: Tag
+│   ├── userSchema.py           # Pydantic Schemas: User
+│   ├── recipeSchem.py          # Pydantic Schemas: Recipe
+│   └── tagSchema.py            # Pydantic Schemas: Tag
 │
 ├── routers/
-│   ├── userRout.py          # Endpunkte: /user
-│   ├── recipeRout.py        # Endpunkte: /recipes
-│   ├── tagRout.py           # Endpunkte: /tag
-│   └── suggestionRout.py    # Endpunkte: /suggestions
+│   ├── userRout.py             # Endpunkte: /user
+│   ├── recipeRout.py           # Endpunkte: /recipes
+│   ├── tagRout.py              # Endpunkte: /tag
+│   ├── favouriteRout.py        # Endpunkte: /favourites
+│   └── suggestionRout.py       # Endpunkte: /suggestions
 │
-├── services/
-│   └── tag_matcher.py       # Algorithmus: Jaccard-Matching
+├── static/
+│   ├── css/   
+|   |   └── style.css           # Stylesheet  
+|   ├── images/recipes 
+|   |   └── ~Pictures~          # Recipe Pictures
+│   └── js/   
+|       ├── app.js              # General Scripts for the App
+|       ├── choose-tags.js      # Script for Choose-Tags Page
+|       ├── dashboard.js        # Scripts for the Dashboard
+|       └── favourites.js       # Scripts for the Favourites Page
+|
+├── templates/
+│   ├── base.html               # Header
+│   ├── choose_tags.html        # Choose-Tags Page
+│   ├── dashboard               # Dashboard Page
+│   ├── favourites.html         # Favourites Page
+│   ├── login.html              # Login Page
+│   └── signup.html             # Signup Page
+│
+├── schemas/
+│   ├── userSchema.py           # Pydantic Schemas: User
+│   ├── recipeSchem.py          # Pydantic Schemas: Recipe
+│   └── tagSchema.py            # Pydantic Schemas: Tag
 │
 └── tests/
     ├── __init__.py
-    └── test_tag_matcher.py  # Unit-Tests für den Algorithmus
+    ├── test_onboarding_redirect.py   # Unit-Tests fürs Frontend
+    └── test_tag_matcher.py     # Unit-Tests für den Algorithmus
 ```
 
 ---
@@ -118,26 +142,49 @@ FastAPI generiert automatisch eine interaktive Dokumentation:
 | Methode | Endpunkt | Beschreibung |
 |---|---|---|
 | `GET` | `/recipes` | Alle Rezepte abrufen |
-| `GET` | `/recipes/{id}` | Einzelnes Rezept abrufen |
+| `GET` | `/recipes/{recipe_id}` | Einzelnes Rezept abrufen |
 | `POST` | `/recipes` | Neues Rezept anlegen |
 
 #### Nutzer
 | Methode | Endpunkt | Beschreibung |
 |---|---|---|
 | `GET` | `/user` | Alle Nutzer abrufen |
-| `GET` | `/user/{id}` | Einzelnen Nutzer abrufen |
+| `GET` | `/user/{user_id}` | Einzelnen Nutzer abrufen |
+| `GET` | `/user/{user_id}/tags` | Tags von einzelnem Nutzer abrufen |
 | `POST` | `/user` | Neuen Nutzer anlegen |
+| `POST` | `/user{user_id}/tags/by-name/{tag_name}` | Tag für einzelnen Nutzer hinzufügen |
+| `DELETE` | `/user{user_id}/tags/by-name/{tag_name}` | Tag für einzelnen Nutzer entfernen |
+
+#### Authentifizierung
+| Methode | Endpunkt | Beschreibung |
+|---|---|---|
+| `GET` | `/signup` | Registrierungs-Formular aufrufen |
+| `GET` | `/login` | Login-Formular aufrufen |
+| `GET` | `/choose-tags` | Tag-Wahl aufrufen |
+| `GET` | `/logout` | Logout aufrufen |
+| `POST` | `/signup` | Nutzer registrieren |
+| `POST` | `/login` | Nutzer einloggen |
+| `POST` | `/choose-tags` | Tag-Wahl speichern |
+
 
 #### Tags
 | Methode | Endpunkt | Beschreibung |
 |---|---|---|
 | `GET` | `/tag` | Alle verfügbaren Tags abrufen |
+| `GET` | `/tag/{tag_id}` | Einzelnes Tag abfrufen |
 | `POST` | `/tag` | Neuen Tag anlegen |
 
 #### Vorschlag
 | Methode | Endpunkt | Beschreibung |
 |---|---|---|
 | `GET` | `/suggestions/{user_id}` | Tagesrezept für Nutzer abrufen, alternativ mit Boolean "skip" um das Rezept zu überspringen |
+
+#### Favoriten
+| Methode | Endpunkt | Beschreibung |
+|---|---|---|
+| `GET` | `/user/{user_id}/favourites` | Favouriten-Liste des Nutzers aufrufen |
+| `POST` | `/user/{user_id}/favourites/{recipe_id}` | Rezept zur Favoriten-Liste des Nutzers hinzufügen |
+| `DELETE` | `/user/{user_id}/favourites/{recipe_id}` | Rezept von der Favoriten-Liste des Nutzers entfernen |
 
 ---
 
