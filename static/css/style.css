@@ -898,13 +898,15 @@ main {
     border-radius: 14px;
     background: #f8fbff;
     overflow: hidden;
-    min-height: 116px;
+    min-height: 132px;
     cursor: pointer;
 }
 
 .example-recipe-image-wrap {
     position: relative;
-    min-height: 116px;
+    min-height: 132px;
+    height: auto;
+    align-self: stretch;
     background: #dbeafe;
     display: flex;
     align-items: center;
@@ -941,6 +943,8 @@ main {
     padding: 10px 12px 10px 0;
     display: grid;
     gap: 6px;
+    min-height: 132px;
+    align-content: start;
 }
 
 .example-recipe-content h4 {
@@ -951,6 +955,7 @@ main {
     margin: 0;
     color: #334155;
     line-height: 1.45;
+    min-height: calc(1.45em * 2);
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -961,6 +966,7 @@ main {
 .example-recipe-content .tag-pill-list {
     margin-top: 0;
     margin-bottom: 14px;
+    min-height: 28px;
 }
 
 .example-recipe-actions {
