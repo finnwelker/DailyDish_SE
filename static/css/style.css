@@ -156,7 +156,26 @@ main {
 
 .daily-dish-cta {
     display: flex;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
+    max-height: 220px;
+    overflow: hidden;
+    transition: max-height 0.35s ease, opacity 0.28s ease, margin-bottom 0.28s ease;
+}
+
+.daily-dish-cta-collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+    pointer-events: none;
+}
+
+.daily-dish-cta-note {
+    margin: 10px 0 0;
+    color: #4a5568;
+    font-size: 0.92rem;
+    text-align: center;
 }
 
 .daily-dish-button {
@@ -179,8 +198,24 @@ main {
 }
 
 .daily-dish-result {
-    margin-top: 12px;
-    padding: 24px 26px;
+    margin-top: 6px;
+    padding: 16px 26px 24px;
+}
+
+.daily-dish-result-reveal {
+    transform-origin: top center;
+    animation: dailyDishExpandIn 0.42s cubic-bezier(0.2, 0.9, 0.2, 1);
+}
+
+@keyframes dailyDishExpandIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px) scaleY(0.84);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scaleY(1);
+    }
 }
 
 .daily-dish-top-grid {
@@ -199,7 +234,7 @@ main {
     left: 0;
     right: 0;
     bottom: 0;
-    border-bottom: 1px solid #dbeafe;
+    border-bottom: 1px solid #9fc4e6;
 }
 
 .daily-dish-copy {
@@ -216,7 +251,7 @@ main {
 }
 
 .daily-dish-tags-panel {
-    border-left: 1px solid #dbeafe;
+    border-left: 1px solid #9fc4e6;
     padding-left: 40px;
     margin-left: -20px;
     align-self: stretch;
@@ -322,28 +357,28 @@ main {
 
 #add-to-favourites-button,
 #daily-dish-action-row a[href="/favourites"] {
-    background: #169adc;
+    background: #1d8fc7;
     color: #ffffff;
     border-color: #169adc;
 }
 
 #add-to-favourites-button:hover,
 #daily-dish-action-row a[href="/favourites"]:hover {
-    background: #138abd;
+    background: #3e9dc6;
     color: #ffffff;
     border-color: #138abd;
 }
 
 #download-daily-dish-button,
 #load-next-recipe-button {
-    background: #fbed22;
+    background: #fff151;
     color: #111111;
     border-color: #e9db18;
 }
 
 #download-daily-dish-button:hover,
 #load-next-recipe-button:hover {
-    background: #fff157;
+    background: #f8ed7b;
     color: #111111;
     border-color: #e9db18;
 }

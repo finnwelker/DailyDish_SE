@@ -5,6 +5,8 @@ const recipeSearchInput = document.getElementById('recipe-search-input');
 const recipeSearchResultList = document.getElementById('recipe-search-result-list');
 const recipeSearchFieldWrap = document.querySelector('.recipe-search-field-wrap');
 const loadDailyDishButton = document.getElementById('load-daily-dish-button');
+const dailyDishCta = document.querySelector('.daily-dish-cta');
+const dailyDishCtaNote = document.querySelector('.daily-dish-cta-note');
 const dailyDishResult = document.getElementById('daily-dish-result');
 const dailyDishTitle = document.getElementById('daily-dish-title');
 const dailyDishDescription = document.getElementById('daily-dish-description');
@@ -125,6 +127,11 @@ function renderDailyDish(recipe) {
     if (!dailyDishResult || !dailyDishTitle || !dailyDishDescription || !dailyDishIngredients || !dailyDishInstructions || !dailyDishTags) return;
 
     dailyDishResult.classList.remove('hidden');
+    // Retrigger reveal animation each time a new suggestion is rendered.
+    dailyDishResult.classList.remove('daily-dish-result-reveal');
+    // Force reflow so the class re-add starts animation from frame 0.
+    void dailyDishResult.offsetWidth;
+    dailyDishResult.classList.add('daily-dish-result-reveal');
 
     const actionRow = document.getElementById('daily-dish-action-row');
     if (actionRow) actionRow.style.display = 'flex';
@@ -371,6 +378,13 @@ if (loadDailyDishButton && dailyDishResult) {
 
     loadDailyDishButton.addEventListener('click', async () => {
         const userId = loadDailyDishButton.dataset.userId;
+
+        if (dailyDishCtaNote) {
+            dailyDishCtaNote.classList.add('hidden');
+        }
+        if (dailyDishCta) {
+            dailyDishCta.classList.add('daily-dish-cta-collapsed');
+        }
 
         if (!userId) {
             dailyDishTitle.textContent = 'Bitte logge dich ein';
