@@ -4,7 +4,7 @@ Eine smarte Rezept-App die täglich ein personalisiertes Rezept vorschlägt – 
 
 > Uni-Projekt · HAW Hamburg · Medieninformatik · Software Engineering · 2026
 
-(Readme mithilfe von KI genertiert)
+(Readme mithilfe von KI generiert)
 ---
 
 ## Projektbeschreibung
@@ -180,7 +180,7 @@ Die Unit-Tests decken folgende Fälle ab:
 
 ## Vorgehensmodell
 
-Das Projekt wird nach **SCRUM** entwickelt mit 2-wöchigen Sprints. Der aktuelle Stand des Backlogs und der Sprints ist im [GitHub Projects Board](https://github.com/finnwelker/DailyDish_SE/projects) einsehbar.
+Das Projekt wird nach **SCRUM** entwickelt mit 1,5-wöchigen Sprints. Der aktuelle Stand des Backlogs und der Sprints ist im [GitHub Projects Board](https://github.com/finnwelker/DailyDish_SE/projects) einsehbar.
 
 **Rollen:**
 - Product Owner: Jesse, Finn 
