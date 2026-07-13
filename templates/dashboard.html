@@ -26,7 +26,16 @@
     <div class="daily-dish-card">
         <div class="daily-dish-inner-card">
             <div class="daily-dish-cta">
-                <button id="load-daily-dish-button" class="daily-dish-button" type="button" data-user-id="{{ user.id }}">Load Daily Dish</button>
+                <button id="load-daily-dish-button" class="daily-dish-button" type="button" data-user-id="{{ user.id }}">
+                    <strong class="daily-dish-button-label">Load Daily Dish</strong>
+                    <span class="daily-dish-stars-container" aria-hidden="true">
+                        <span class="daily-dish-stars"></span>
+                    </span>
+                    <span class="daily-dish-glow" aria-hidden="true">
+                        <span class="daily-dish-circle"></span>
+                        <span class="daily-dish-circle"></span>
+                    </span>
+                </button>
                 <p class="daily-dish-cta-note">Zeigt ein Rezept an welches zu deinen gewählten Tags passt</p>
             </div>
 
@@ -69,7 +78,11 @@
                 <span class="btn-icon">&#x2606;</span>Meine Favoriten
             </a>
             <button id="download-daily-dish-button" class="button dashboard-edit-tags-button" type="button" disabled>
-                <span class="btn-icon">&#x21E9;</span>Herunterladen
+                <span class="btn-icon btn-icon--download" aria-hidden="true">
+                    <svg class="download-arrow-icon" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"></path>
+                    </svg>
+                </span>Herunterladen
             </button>
             <button id="load-next-recipe-button" class="button dashboard-edit-tags-button" type="button" disabled>
                 <span class="btn-icon">&#x27F3;</span>Neues Rezept Laden
@@ -167,7 +180,11 @@
                 </div>
                 <div class="daily-dish-action-row modal-recipe-action-row">
                     <button id="dashboard-modal-download-button" class="button dashboard-edit-tags-button" type="button" disabled>
-                        <span class="btn-icon">&#x21E9;</span>Herunterladen
+                        <span class="btn-icon btn-icon--download" aria-hidden="true">
+                            <svg class="download-arrow-icon" viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M169.4 470.6c12.5 12.5 32.8 12.5 45.3 0l160-160c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L224 370.8 224 64c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 306.7L54.6 265.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l160 160z"></path>
+                            </svg>
+                        </span>Herunterladen
                     </button>
                 </div>
             </div>

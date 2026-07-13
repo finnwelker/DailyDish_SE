@@ -159,7 +159,8 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    max-height: 220px;
+    max-height: 340px;
+    padding: 20px 0 8px;
     overflow: hidden;
     transition: max-height 0.35s ease, opacity 0.28s ease, margin-bottom 0.28s ease;
 }
@@ -172,29 +173,173 @@ main {
 }
 
 .daily-dish-cta-note {
-    margin: 10px 0 0;
+    margin: 20px 0 0;
     color: #4a5568;
     font-size: 0.92rem;
     text-align: center;
 }
 
 .daily-dish-button {
-    border: none;
-    border-radius: 18px;
-    padding: 18px 36px;
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #ffffff;
-    background: linear-gradient(135deg, #2563eb, #3b82f6);
-    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 19rem;
+    height: 4.6rem;
+    overflow: hidden;
+    border: double 4px transparent;
+    border-radius: 5rem;
     cursor: pointer;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    backdrop-filter: blur(1rem);
+    background-size: 300% 300%;
+    background-image: linear-gradient(rgba(32, 85, 134, 0.95), rgba(215, 203, 33, 0.95)),
+        linear-gradient(135deg, #fbed22 0%, #169adc 100%);
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.199);
+    transition: 0.5s;
+    animation: dailyDishGradient301 5s ease infinite;
 }
 
 .daily-dish-button:hover {
-    transform: translateY(-2px);
-    filter: brightness(1.05);
-    box-shadow: 0 14px 30px rgba(37, 99, 235, 0.34);
+    transform: scale(1.07);
+    background-image: linear-gradient(transparent, transparent),
+        linear-gradient(135deg, #fbed22 0%, #169adc 100%);
+}
+
+.daily-dish-button-label {
+    z-index: 2;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    color: #ffffff;
+    text-shadow: 0 0 4px #ffffff;
+}
+
+.daily-dish-stars-container {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    overflow: hidden;
+    backdrop-filter: blur(1rem);
+    border-radius: 5rem;
+    transition: 0.5s;
+}
+
+.daily-dish-button:hover .daily-dish-stars-container {
+    z-index: 1;
+    background-color: transparent;
+}
+
+.daily-dish-glow {
+    position: absolute;
+    display: flex;
+    width: 16.5rem;
+}
+
+.daily-dish-circle {
+    width: 100%;
+    height: 42px;
+    filter: blur(2rem);
+    z-index: -1;
+    animation: dailyDishPulse3011 4s infinite;
+}
+
+.daily-dish-circle:nth-of-type(1) {
+    background: rgba(251, 237, 34, 0.58);
+}
+
+.daily-dish-circle:nth-of-type(2) {
+    background: rgba(22, 154, 220, 0.62);
+}
+
+.daily-dish-button:active {
+    border: double 4px #169adc;
+    background-origin: border-box;
+    background-clip: content-box, border-box;
+    animation: none;
+}
+
+.daily-dish-button:active .daily-dish-circle {
+    background: #169adc;
+}
+
+.daily-dish-stars {
+    position: relative;
+    width: 200rem;
+    height: 200rem;
+    background: transparent;
+}
+
+.daily-dish-stars::after {
+    content: "";
+    position: absolute;
+    top: -10rem;
+    left: -100rem;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(#ffffff 1px, transparent 1%);
+    background-size: 50px 50px;
+    animation: dailyDishStarRotate 90s linear infinite;
+}
+
+.daily-dish-stars::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -50%;
+    width: 170%;
+    height: 500%;
+    opacity: 0.5;
+    background-image: radial-gradient(#ffffff 1px, transparent 1%);
+    background-size: 50px 50px;
+    animation: dailyDishStarMove 60s linear infinite;
+}
+
+@keyframes dailyDishStarMove {
+    from {
+        transform: translateY(0);
+    }
+    to {
+        transform: translateY(-135rem);
+    }
+}
+
+@keyframes dailyDishStarRotate {
+    from {
+        transform: rotate(360deg);
+    }
+    to {
+        transform: rotate(0);
+    }
+}
+
+@keyframes dailyDishGradient301 {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes dailyDishPulse3011 {
+    0% {
+        transform: scale(0.75);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+    }
+    100% {
+        transform: scale(0.75);
+        box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+    }
 }
 
 .daily-dish-result {
@@ -572,6 +717,19 @@ main {
 
 .btn-icon {
     margin-right: 5px;
+}
+
+.btn-icon--download {
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+.download-arrow-icon {
+    width: 0.95em;
+    height: 0.95em;
+    display: block;
+    fill: currentColor;
 }
 
 /* Recipe detail modal */
