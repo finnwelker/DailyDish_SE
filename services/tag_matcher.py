@@ -80,9 +80,8 @@ def get_suggestion(user_id: int, db: Session, skip: bool = False):
     # Wir holen den User mit der ID
     user = db.query(User).filter(User.id == user_id).first()
 
-    # TODO: Später mit Exception
     if not user:
-        return None
+        raise ValueError(f"User mit ID {user_id} wurde nicht gefunden")
 
     empty_old_history(user, db)
     db.refresh(user)
