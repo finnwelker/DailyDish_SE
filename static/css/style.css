@@ -316,6 +316,43 @@ main {
     font-size: 0.875rem;
 }
 
+#download-daily-dish-button {
+    margin-left: auto;
+}
+
+#add-to-favourites-button,
+#daily-dish-action-row a[href="/favourites"] {
+    background: #169adc;
+    color: #ffffff;
+    border-color: #169adc;
+}
+
+#add-to-favourites-button:hover,
+#daily-dish-action-row a[href="/favourites"]:hover {
+    background: #138abd;
+    color: #ffffff;
+    border-color: #138abd;
+}
+
+#download-daily-dish-button,
+#load-next-recipe-button {
+    background: #fbed22;
+    color: #111111;
+    border-color: #e9db18;
+}
+
+#download-daily-dish-button:hover,
+#load-next-recipe-button:hover {
+    background: #fff157;
+    color: #111111;
+    border-color: #e9db18;
+}
+
+#download-daily-dish-button:disabled,
+#load-next-recipe-button:disabled {
+    opacity: 0.75;
+}
+
 .favourite-button:disabled {
     background: #e5e7eb;
     color: #9ca3af;
