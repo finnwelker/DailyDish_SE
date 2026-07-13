@@ -125,7 +125,7 @@ python -m uvicorn main:app --reload
 
 Die API läuft nun unter `http://127.0.0.1:8000`.
 
-Nun per http://127.0.0.1:8000/dashboard auf die Startseite und mit Signup ein Profil erstellen. Danach einloggen und Anweisungen folgen!
+Nun per http://127.0.0.1:8000 auf die Startseite und mit Signup ein Profil erstellen (oben rechts). Danach einloggen und Anweisungen folgen!
 
 ---
 
