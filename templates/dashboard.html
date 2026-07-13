@@ -32,9 +32,14 @@
             <div id="daily-dish-result" class="daily-dish-result hidden">
                 <div class="daily-dish-top-grid">
                     <div class="daily-dish-copy">
-                        <div class="eyebrow">Daily Dish Vorschlag</div>
-                        <h3 id="daily-dish-title"></h3>
-                        <p id="daily-dish-description" class="daily-dish-description"></p>
+                        <div class="daily-dish-header-with-image">
+                            <img id="daily-dish-image" class="daily-dish-header-image" src="" alt="" loading="lazy">
+                            <div class="daily-dish-header-copy">
+                                <div class="eyebrow">Daily Dish Vorschlag</div>
+                                <h3 id="daily-dish-title"></h3>
+                                <p id="daily-dish-description" class="daily-dish-description"></p>
+                            </div>
+                        </div>
                     </div>
                     <aside class="daily-dish-tags-panel">
                         <h4>Tags</h4>
@@ -63,33 +68,52 @@
                 <span class="btn-icon">&#x2606;</span>Meine Favoriten
             </a>
             <button id="download-daily-dish-button" class="button dashboard-edit-tags-button" type="button" disabled>
-                <span class="btn-icon">&#x2B07;</span>Herunterladen
+                <span class="btn-icon">&#x21E9;</span>Herunterladen
             </button>
         </div>
     </div>
 </section>
-
-<section class="dashboard-tags-section">
-    <div class="card my-tags-card">
-        <h3>Meine Tags</h3>
-        {% if user.tags %}
-        <div class="tag-pill-list">
-            {% for tag in user.tags %}
-            <span class="tag-pill">{{ tag.name }}</span>
-            {% endfor %}
-        </div>
-        {% else %}
-        <p>Du hast noch keine Tags ausgewählt.</p>
-        {% endif %}
-        <a class="button dashboard-edit-tags-button" href="/choose-tags">
-            <span class="pen-icon" aria-hidden="true">✎</span>
-            Tags bearbeiten
-        </a>
-    </div>
-</section>
 {% endif %}
 
-<section id="recipe-examples-section" class="overview-grid" {% if user %}data-user-id="{{ user.id }}"{% endif %}>
+<section id="dashboard-content-stack" {% if user %}data-user-id="{{ user.id }}"{% endif %}>
+    <div class="dashboard-top-grid">
+        <div class="card recipe-search-card">
+            <h3>Rezept-Suche</h3>
+            <div class="recipe-search-field-wrap">
+                <input id="recipe-search-input" class="recipe-search-input" type="text" placeholder="Suche nach bestimmten Rezepten" autocomplete="off">
+                <div id="recipe-search-result-list" class="recipe-example-list recipe-search-result-list"></div>
+            </div>
+        </div>
+
+        {% if is_logged_in and user %}
+        <div class="card my-tags-card">
+            <h3>Meine Tags</h3>
+            {% if user.tags %}
+            <div id="my-tags-list" class="tag-pill-list">
+                {% for tag in user.tags %}
+                <span class="tag-pill">{{ tag.name }}</span>
+                {% endfor %}
+            </div>
+            <p id="my-tags-empty" class="hidden">Du hast noch keine Tags ausgewählt.</p>
+            {% else %}
+            <div id="my-tags-list" class="tag-pill-list"></div>
+            <p id="my-tags-empty">Du hast noch keine Tags ausgewählt.</p>
+            {% endif %}
+            <a class="button dashboard-edit-tags-button" href="/choose-tags">
+                <span class="pen-icon" aria-hidden="true">✎</span>
+                Tags bearbeiten
+            </a>
+        </div>
+        {% else %}
+        <div class="card my-tags-card">
+            <h3>Meine Tags</h3>
+            <p>Logge dich ein, um deine persönlichen Tags zu sehen und zu bearbeiten.</p>
+            <a class="button dashboard-edit-tags-button" href="/login">Login</a>
+        </div>
+        {% endif %}
+    </div>
+
+<section id="recipe-examples-section" class="overview-grid">
     <div class="card">
         <h3>Rezept-Beispiele</h3>
         <div id="recipe-example-list" class="recipe-example-list">
@@ -98,14 +122,17 @@
     </div>
     <div class="card">
         <h3>Beliebte Tags</h3>
+        {% if popular_tags %}
         <div class="tag-pill-list">
-            <span class="tag-pill">schnell</span>
-            <span class="tag-pill">vegetarisch</span>
-            <span class="tag-pill">gesund</span>
-            <span class="tag-pill">comfortfood</span>
-            <span class="tag-pill">saisonal</span>
+            {% for tag_name in popular_tags %}
+            <span class="tag-pill">{{ tag_name }}</span>
+            {% endfor %}
         </div>
+        {% else %}
+        <p>Noch keine Tags vorhanden.</p>
+        {% endif %}
     </div>
+</section>
 </section>
 
 <div id="dashboard-recipe-modal" class="recipe-modal-overlay hidden">
@@ -135,8 +162,8 @@
                     </div>
                 </div>
                 <div class="daily-dish-action-row modal-recipe-action-row">
-                    <button id="dashboard-modal-add-favourite-button" class="button dashboard-edit-tags-button" type="button" disabled>
-                        <span class="btn-icon">&#x2661;</span>Zu Favoriten hinzufügen
+                    <button id="dashboard-modal-download-button" class="button dashboard-edit-tags-button" type="button" disabled>
+                        <span class="btn-icon">&#x21E9;</span>Herunterladen
                     </button>
                 </div>
             </div>

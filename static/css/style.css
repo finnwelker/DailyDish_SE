@@ -55,6 +55,14 @@ main {
     margin-bottom: 28px;
 }
 
+.dashboard-hero,
+.daily-dish-section,
+#dashboard-content-stack {
+    width: min(1480px, calc(100vw - 32px));
+    margin-left: 50%;
+    transform: translateX(-50%);
+}
+
 .eyebrow {
     text-transform: uppercase;
     letter-spacing: 0.16em;
@@ -143,7 +151,7 @@ main {
     background: #ffffff;
     border: 1px solid #bfdbfe;
     border-radius: 12px;
-    padding: 24px;
+    padding: 34px;
 }
 
 .daily-dish-cta {
@@ -172,14 +180,26 @@ main {
 
 .daily-dish-result {
     margin-top: 12px;
-    padding: 16px 18px;
+    padding: 24px 26px;
 }
 
 .daily-dish-top-grid {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) 310px;
-    gap: 18px;
+    grid-template-columns: minmax(0, 1fr) 460px;
+    gap: 24px;
     align-items: start;
+    position: relative;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+
+.daily-dish-top-grid::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-bottom: 1px solid #dbeafe;
 }
 
 .daily-dish-copy {
@@ -197,8 +217,8 @@ main {
 
 .daily-dish-tags-panel {
     border-left: 1px solid #dbeafe;
-    padding-left: 28px;
-    margin-left: -6px;
+    padding-left: 40px;
+    margin-left: -20px;
     align-self: stretch;
 }
 
@@ -206,11 +226,36 @@ main {
     margin: 0 0 8px;
 }
 
+.daily-dish-header-with-image {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 14px;
+    align-items: start;
+}
+
+.daily-dish-header-image {
+    width: 120px;
+    height: 120px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 1px solid #dbeafe;
+    background: #e2e8f0;
+    display: block;
+}
+
+.daily-dish-header-image.image-failed {
+    opacity: 0;
+}
+
+.daily-dish-header-copy {
+    min-width: 0;
+}
+
 .daily-dish-grid {
     display: grid;
-    grid-template-columns: minmax(220px, 0.86fr) minmax(260px, 1.14fr);
-    gap: 10px;
-    margin-top: 12px;
+    grid-template-columns: minmax(280px, 0.9fr) minmax(360px, 1.1fr);
+    gap: 18px;
+    margin-top: 18px;
     margin-left: -4px;
 }
 
@@ -232,9 +277,19 @@ main {
 }
 
 .ingredient-line {
-    padding: 2px 0;
-    list-style: disc;
+    padding: 2px 0 2px 24px;
+    list-style: none;
     margin-left: 0;
+    position: relative;
+}
+
+.ingredient-line::before {
+    content: "\2713";
+    position: absolute;
+    left: 0;
+    top: 2px;
+    color: #16a34a;
+    font-weight: 700;
 }
 
 .instruction-step {
@@ -461,7 +516,7 @@ main {
 .recipe-modal-content {
     position: relative;
     width: 100%;
-    max-width: 900px;
+    max-width: 1180px;
     max-height: 88vh;
     overflow-y: auto;
     border-radius: 20px;
@@ -565,10 +620,80 @@ main {
     gap: 24px;
 }
 
+.dashboard-top-grid,
 #recipe-examples-section {
-    width: min(1480px, calc(100vw - 32px));
-    margin-left: 50%;
-    transform: translateX(-50%);
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(300px, 1fr);
+    gap: 24px;
+}
+
+#recipe-examples-section {
+    margin-top: 24px;
+}
+
+.recipe-search-card {
+    position: relative;
+}
+
+.recipe-search-field-wrap {
+    position: relative;
+    margin-top: 34px;
+}
+
+.recipe-search-card h3,
+.my-tags-card h3,
+#recipe-examples-section > .card:first-child h3,
+#recipe-examples-section > .card:last-child h3 {
+    font-size: 1.2rem;
+}
+
+.recipe-search-card h3,
+#recipe-examples-section > .card:first-child h3 {
+    margin-left: 3px;
+}
+
+.my-tags-card h3,
+#recipe-examples-section > .card:last-child h3 {
+    margin-left: 3px;
+}
+
+.recipe-search-input {
+    width: 100%;
+    max-width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 12px;
+    padding: 9px 12px;
+    font-size: 1rem;
+    color: #1f2937;
+    background: #ffffff;
+    box-sizing: border-box;
+}
+
+.recipe-search-input::placeholder {
+    color: #9ca3af;
+}
+
+.recipe-search-result-list {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 40;
+    max-height: 420px;
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #dbeafe;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12);
+}
+
+.recipe-search-result-list:empty {
+    display: none;
+}
+
+.recipe-search-field-wrap:not(.search-results-open) .recipe-search-result-list {
+    display: none;
 }
 
 .card {
@@ -624,7 +749,44 @@ main {
     font-size: 0.95rem;
     font-weight: 400;
     cursor: pointer;
+    position: relative;
+    padding-right: 22px;
     transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.tag-pill::after {
+    content: "╋";
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.6em;
+    font-weight: 700;
+    opacity: 0;
+    transition: opacity 0.12s ease;
+}
+
+.tag-pill:hover::after {
+    opacity: 1;
+}
+
+.tag-pill.tag-pill-user-has-tag::after {
+    content: " \2715";
+    color: #2e2e2e;
+    font-size: 0.75em;
+}
+
+.tag-pill.tag-pill-added-feedback::after {
+    content: "\2713";
+    opacity: 1;
+    color: #16a34a;
+}
+
+.tag-pill.tag-pill-removed-feedback::after {
+    content: " \2715";
+    opacity: 1;
+    color: #dc2626;
+    font-size: 0.75em;
 }
 
 .tag-pill:hover {
@@ -635,6 +797,13 @@ main {
     background: #2563eb;
     color: #ffffff;
     border-color: #2563eb;
+}
+
+.flip-card-back .tag-pill,
+.example-recipe-content .tag-pill {
+    padding: 5px 18px 5px 9px;
+    font-size: 0.8rem;
+    line-height: 1.2;
 }
 
 .suggestion-list {
@@ -719,6 +888,7 @@ main {
 
 .example-recipe-content .tag-pill-list {
     margin-top: 0;
+    margin-bottom: 14px;
 }
 
 .example-recipe-actions {
@@ -737,10 +907,17 @@ main {
 }
 
 @media (max-width: 720px) {
-    #recipe-examples-section {
+    .dashboard-hero,
+    .daily-dish-section,
+    #dashboard-content-stack {
         width: auto;
         margin-left: 0;
         transform: none;
+    }
+
+    .dashboard-top-grid,
+    #recipe-examples-section {
+        grid-template-columns: 1fr;
     }
 
     .example-recipe-card {
@@ -754,6 +931,14 @@ main {
 
     .example-recipe-content {
         padding: 12px 14px 14px;
+    }
+
+    .recipe-search-result-list {
+        position: static;
+        max-height: none;
+        margin-top: 10px;
+        box-shadow: none;
+        padding: 0;
     }
 }
 

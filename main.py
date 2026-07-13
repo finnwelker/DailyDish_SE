@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request, Depends
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import inspect, text
+from sqlalchemy import inspect, text, func, distinct
 from sqlalchemy.orm import Session, selectinload
 from database import engine, Base, get_db, SessionLocal
 from models import recipe, tag, join_tables
@@ -88,10 +88,31 @@ def dashboard(request: Request, db: Session = Depends(get_db)):
                 return RedirectResponse(url="/choose-tags", status_code=303)
 
     request.state.user = current_user
+
+    popularity_expr = (
+        func.count(distinct(join_tables.user_tags.c.user_id))
+        + func.count(distinct(join_tables.recipe_tags.c.recipe_id))
+    )
+
+    popular_tag_rows = (
+        db.query(
+            tag.Tag.name.label("name"),
+            popularity_expr.label("usage_count"),
+        )
+        .outerjoin(join_tables.user_tags, tag.Tag.id == join_tables.user_tags.c.tag_id)
+        .outerjoin(join_tables.recipe_tags, tag.Tag.id == join_tables.recipe_tags.c.tag_id)
+        .group_by(tag.Tag.id, tag.Tag.name)
+        .order_by(popularity_expr.desc(), tag.Tag.name.asc())
+        .limit(12)
+        .all()
+    )
+
+    popular_tags = [row.name for row in popular_tag_rows if row.name]
+
     return templates.TemplateResponse(
         request,
         "dashboard.html",
-        {"request": request},
+        {"request": request, "popular_tags": popular_tags},
     )
 
 

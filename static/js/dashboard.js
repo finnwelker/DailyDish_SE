@@ -1,10 +1,14 @@
-const recipeExamplesSection = document.getElementById('recipe-examples-section');
-const dashboardUserId = recipeExamplesSection ? recipeExamplesSection.dataset.userId : null;
+const dashboardContentStack = document.getElementById('dashboard-content-stack');
+const dashboardUserId = dashboardContentStack ? dashboardContentStack.dataset.userId : null;
 const recipeExampleList = document.getElementById('recipe-example-list');
+const recipeSearchInput = document.getElementById('recipe-search-input');
+const recipeSearchResultList = document.getElementById('recipe-search-result-list');
+const recipeSearchFieldWrap = document.querySelector('.recipe-search-field-wrap');
 const loadDailyDishButton = document.getElementById('load-daily-dish-button');
 const dailyDishResult = document.getElementById('daily-dish-result');
 const dailyDishTitle = document.getElementById('daily-dish-title');
 const dailyDishDescription = document.getElementById('daily-dish-description');
+const dailyDishImage = document.getElementById('daily-dish-image');
 const dailyDishIngredients = document.getElementById('daily-dish-ingredients');
 const dailyDishInstructions = document.getElementById('daily-dish-instructions');
 const dailyDishTags = document.getElementById('daily-dish-tags');
@@ -16,10 +20,12 @@ const dashboardModalDescription = document.getElementById('dashboard-modal-descr
 const dashboardModalIngredients = document.getElementById('dashboard-modal-ingredients');
 const dashboardModalInstructions = document.getElementById('dashboard-modal-instructions');
 const dashboardModalTags = document.getElementById('dashboard-modal-tags');
-const dashboardModalAddFavouriteButton = document.getElementById('dashboard-modal-add-favourite-button');
+const dashboardModalDownloadButton = document.getElementById('dashboard-modal-download-button');
 const addToFavouritesButton = document.getElementById('add-to-favourites-button');
 let currentDailyDishRecipe = null;
-let displayedExampleRecipes = [];
+let currentDashboardModalRecipe = null;
+let allDashboardRecipes = [];
+let recipesById = new Map();
 let favouriteRecipeIds = new Set();
 
 const favouriteButtonLabels = {
@@ -96,10 +102,6 @@ function updateFavouriteButtonsForRecipe(recipeId, isAdded) {
         setFavouriteButtonState(addToFavouritesButton, isAdded);
     }
 
-    if (dashboardModalAddFavouriteButton && Number(dashboardModalAddFavouriteButton.dataset.recipeId) === normalizedRecipeId) {
-        setFavouriteButtonState(dashboardModalAddFavouriteButton, isAdded);
-    }
-
     const buttons = document.querySelectorAll(`.example-add-favourite-button[data-recipe-id="${normalizedRecipeId}"]`);
     buttons.forEach(button => setFavouriteButtonState(button, isAdded));
 }
@@ -128,6 +130,11 @@ function renderDailyDish(recipe) {
 
     dailyDishTitle.textContent = recipe.title;
     dailyDishDescription.textContent = recipe.description;
+    if (dailyDishImage) {
+        dailyDishImage.src = `/static/images/recipes/${recipe.id}.jpg`;
+        dailyDishImage.alt = recipe.title || 'Rezeptbild';
+        dailyDishImage.classList.remove('image-failed');
+    }
     dailyDishIngredients.innerHTML = `<ul>${formatIngredientLines(recipe.ingredients)}</ul>`;
     dailyDishInstructions.innerHTML = formatInstructionSteps(recipe.instructions);
     dailyDishTags.innerHTML = (recipe.tags || [])
@@ -147,15 +154,15 @@ function renderDailyDish(recipe) {
     }
 }
 
-function renderRecipeExamples(recipes) {
-    if (!recipeExampleList) return;
+function renderRecipeCards(listElement, recipes, emptyMessage) {
+    if (!listElement) return;
 
     if (!recipes.length) {
-        recipeExampleList.innerHTML = '<p>Keine Rezept-Beispiele in der Datenbank gefunden.</p>';
+        listElement.innerHTML = `<p>${escapeHtml(emptyMessage)}</p>`;
         return;
     }
 
-    recipeExampleList.innerHTML = recipes.map(recipe => {
+    listElement.innerHTML = recipes.map(recipe => {
         const tags = parseTags(recipe.tags);
         const isFavourite = favouriteRecipeIds.has(recipe.id);
         const addButtonHtml = dashboardUserId
@@ -196,10 +203,6 @@ async function loadFavouriteRecipeIds() {
     }
 }
 
-function findDisplayedRecipeById(recipeId) {
-    return displayedExampleRecipes.find(recipe => recipe.id === recipeId) || null;
-}
-
 function openDashboardRecipeModal(recipe) {
     if (!dashboardRecipeModal || !recipe) return;
 
@@ -210,16 +213,16 @@ function openDashboardRecipeModal(recipe) {
     dashboardModalInstructions.innerHTML = formatInstructionSteps(recipe.instructions || '');
     dashboardModalTags.innerHTML = tags.map(tag => `<span class="tag-pill">${escapeHtml(tag)}</span>`).join('');
 
-    if (dashboardModalAddFavouriteButton) {
-        if (dashboardUserId) {
-            dashboardModalAddFavouriteButton.disabled = false;
-            dashboardModalAddFavouriteButton.dataset.recipeId = String(recipe.id);
-            setFavouriteButtonState(dashboardModalAddFavouriteButton, favouriteRecipeIds.has(recipe.id));
-        } else {
-            dashboardModalAddFavouriteButton.disabled = true;
-            dashboardModalAddFavouriteButton.removeAttribute('data-recipe-id');
-            dashboardModalAddFavouriteButton.innerHTML = '<span class="btn-icon">&#x21AA;</span>Bitte einloggen';
-        }
+    currentDashboardModalRecipe = {
+        title: recipe.title || '',
+        description: recipe.description || '',
+        ingredients: recipe.ingredients || '',
+        instructions: recipe.instructions || '',
+        tags: tags
+    };
+
+    if (dashboardModalDownloadButton) {
+        dashboardModalDownloadButton.disabled = false;
     }
 
     dashboardRecipeModal.classList.remove('hidden');
@@ -228,6 +231,12 @@ function openDashboardRecipeModal(recipe) {
 
 function closeDashboardRecipeModal() {
     if (!dashboardRecipeModal) return;
+    currentDashboardModalRecipe = null;
+
+    if (dashboardModalDownloadButton) {
+        dashboardModalDownloadButton.disabled = true;
+    }
+
     dashboardRecipeModal.classList.add('hidden');
     dashboardRecipeModal.style.display = '';
 }
@@ -241,13 +250,99 @@ async function loadRecipeExamplesFromDatabase() {
             throw new Error('Rezeptliste konnte nicht geladen werden');
         }
 
-        const allRecipes = await response.json();
-        displayedExampleRecipes = pickRandomRecipes(allRecipes || [], 2);
-        renderRecipeExamples(displayedExampleRecipes);
+        allDashboardRecipes = await response.json();
+        recipesById = new Map((allDashboardRecipes || []).map(recipe => [recipe.id, recipe]));
+
+        const randomExamples = pickRandomRecipes(allDashboardRecipes || [], 2);
+        renderRecipeCards(recipeExampleList, randomExamples, 'Keine Rezept-Beispiele in der Datenbank gefunden.');
+
+        if (recipeSearchResultList) {
+            recipeSearchResultList.innerHTML = '';
+        }
     } catch (error) {
         console.error(error);
         recipeExampleList.innerHTML = '<p>Rezept-Beispiele konnten nicht geladen werden.</p>';
     }
+}
+
+function searchRecipes(query) {
+    const normalizedQuery = String(query || '').trim().toLowerCase();
+    if (!normalizedQuery) {
+        return [];
+    }
+
+    const terms = normalizedQuery.split(/\s+/).filter(Boolean);
+    return (allDashboardRecipes || []).filter(recipe => {
+        const title = String(recipe.title || '').toLowerCase();
+        const tags = parseTags(recipe.tags).join(' ').toLowerCase();
+        const haystack = `${title} ${tags}`;
+        return terms.every(term => haystack.includes(term));
+    });
+}
+
+function openSearchResults() {
+    if (!recipeSearchFieldWrap || !recipeSearchResultList) return;
+    if (!recipeSearchResultList.innerHTML.trim()) return;
+    recipeSearchFieldWrap.classList.add('search-results-open');
+}
+
+function closeSearchResults() {
+    if (!recipeSearchFieldWrap) return;
+    recipeSearchFieldWrap.classList.remove('search-results-open');
+}
+
+function attachRecipeListInteractions(listElement) {
+    if (!listElement) return;
+
+    listElement.addEventListener('click', async event => {
+        const favouriteButton = event.target.closest('.example-add-favourite-button');
+        if (favouriteButton) {
+            const recipeId = Number(favouriteButton.dataset.recipeId);
+            if (!recipeId) return;
+            await toggleRecipeFavourite(recipeId, favouriteButton.dataset.added === 'true');
+            return;
+        }
+
+        // Tag-pill clicks should only trigger tag actions, not open the recipe modal.
+        if (event.target.closest('.tag-pill')) {
+            return;
+        }
+
+        const card = event.target.closest('.example-recipe-card');
+        if (!card) return;
+        const recipeId = Number(card.dataset.recipeId);
+        if (!recipeId) return;
+        openDashboardRecipeModal(recipesById.get(recipeId) || null);
+    });
+
+    listElement.addEventListener('keydown', event => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        const card = event.target.closest('.example-recipe-card');
+        if (!card) return;
+        event.preventDefault();
+        const recipeId = Number(card.dataset.recipeId);
+        if (!recipeId) return;
+        openDashboardRecipeModal(recipesById.get(recipeId) || null);
+    });
+
+    listElement.addEventListener('error', event => {
+        const image = event.target;
+        if (!(image instanceof HTMLImageElement) || !image.classList.contains('example-recipe-image')) return;
+        const wrapper = image.closest('.example-recipe-image-wrap');
+        if (wrapper) wrapper.classList.add('image-failed');
+    }, true);
+
+    listElement.addEventListener('mouseover', event => {
+        const button = event.target.closest('.example-add-favourite-button');
+        if (!button) return;
+        setFavouriteButtonHoverState(button, true);
+    });
+
+    listElement.addEventListener('mouseout', event => {
+        const button = event.target.closest('.example-add-favourite-button');
+        if (!button) return;
+        setFavouriteButtonHoverState(button, false);
+    });
 }
 
 if (downloadDailyDishButton) {
@@ -264,6 +359,12 @@ if (downloadDailyDishButton) {
 }
 
 if (loadDailyDishButton && dailyDishResult) {
+    if (dailyDishImage) {
+        dailyDishImage.addEventListener('error', () => {
+            dailyDishImage.classList.add('image-failed');
+        });
+    }
+
     loadDailyDishButton.addEventListener('click', async () => {
         const userId = loadDailyDishButton.dataset.userId;
 
@@ -299,51 +400,14 @@ if (loadDailyDishButton && dailyDishResult) {
     });
 }
 
-if (recipeExampleList) {
-    recipeExampleList.addEventListener('click', async event => {
-        const favouriteButton = event.target.closest('.example-add-favourite-button');
-        if (favouriteButton) {
-            const recipeId = Number(favouriteButton.dataset.recipeId);
-            if (!recipeId) return;
-            await toggleRecipeFavourite(recipeId, favouriteButton.dataset.added === 'true');
-            return;
-        }
+attachRecipeListInteractions(recipeExampleList);
+attachRecipeListInteractions(recipeSearchResultList);
 
-        const card = event.target.closest('.example-recipe-card');
-        if (!card) return;
-        const recipeId = Number(card.dataset.recipeId);
-        if (!recipeId) return;
-        openDashboardRecipeModal(findDisplayedRecipeById(recipeId));
+if (dashboardModalDownloadButton) {
+    dashboardModalDownloadButton.addEventListener('click', () => {
+        if (!currentDashboardModalRecipe || typeof window.downloadRecipeAsPdf !== 'function') return;
+        window.downloadRecipeAsPdf(currentDashboardModalRecipe);
     });
-
-    recipeExampleList.addEventListener('keydown', event => {
-        if (event.key !== 'Enter' && event.key !== ' ') return;
-        const card = event.target.closest('.example-recipe-card');
-        if (!card) return;
-        event.preventDefault();
-        const recipeId = Number(card.dataset.recipeId);
-        if (!recipeId) return;
-        openDashboardRecipeModal(findDisplayedRecipeById(recipeId));
-    });
-
-    recipeExampleList.addEventListener('error', event => {
-        const image = event.target;
-        if (!(image instanceof HTMLImageElement) || !image.classList.contains('example-recipe-image')) return;
-        const wrapper = image.closest('.example-recipe-image-wrap');
-        if (wrapper) wrapper.classList.add('image-failed');
-    }, true);
-}
-
-if (dashboardModalAddFavouriteButton) {
-    dashboardModalAddFavouriteButton.classList.add('favourite-toggle-button');
-    dashboardModalAddFavouriteButton.addEventListener('click', async () => {
-        const recipeId = Number(dashboardModalAddFavouriteButton.dataset.recipeId || '0');
-        if (!recipeId) return;
-        await toggleRecipeFavourite(recipeId, dashboardModalAddFavouriteButton.dataset.added === 'true');
-    });
-
-    dashboardModalAddFavouriteButton.addEventListener('mouseenter', () => setFavouriteButtonHoverState(dashboardModalAddFavouriteButton, true));
-    dashboardModalAddFavouriteButton.addEventListener('mouseleave', () => setFavouriteButtonHoverState(dashboardModalAddFavouriteButton, false));
 }
 
 if (dashboardRecipeModal) {
@@ -362,6 +426,40 @@ if (dashboardModalCloseButton) {
     await loadFavouriteRecipeIds();
     await loadRecipeExamplesFromDatabase();
 })();
+
+if (recipeSearchInput && recipeSearchResultList) {
+    recipeSearchInput.addEventListener('input', () => {
+        const query = recipeSearchInput.value;
+        const matches = searchRecipes(query);
+
+        if (!query.trim()) {
+            recipeSearchResultList.innerHTML = '';
+            closeSearchResults();
+            return;
+        }
+
+        renderRecipeCards(recipeSearchResultList, matches, 'Keine passenden Rezepte gefunden.');
+        openSearchResults();
+    });
+
+    recipeSearchInput.addEventListener('focus', () => {
+        if (recipeSearchInput.value.trim()) {
+            openSearchResults();
+        }
+    });
+
+    recipeSearchInput.addEventListener('click', () => {
+        if (recipeSearchInput.value.trim()) {
+            openSearchResults();
+        }
+    });
+
+    document.addEventListener('click', event => {
+        if (!recipeSearchFieldWrap) return;
+        if (recipeSearchFieldWrap.contains(event.target)) return;
+        closeSearchResults();
+    });
+}
 
 if (addToFavouritesButton && loadDailyDishButton) {
     addToFavouritesButton.classList.add('favourite-toggle-button');
@@ -383,16 +481,3 @@ if (addToFavouritesButton && loadDailyDishButton) {
     });
 }
 
-if (recipeExampleList) {
-    recipeExampleList.addEventListener('mouseover', event => {
-        const button = event.target.closest('.example-add-favourite-button');
-        if (!button) return;
-        setFavouriteButtonHoverState(button, true);
-    });
-
-    recipeExampleList.addEventListener('mouseout', event => {
-        const button = event.target.closest('.example-add-favourite-button');
-        if (!button) return;
-        setFavouriteButtonHoverState(button, false);
-    });
-}

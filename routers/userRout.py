@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from database import get_db
 from models.tag import Tag
@@ -52,6 +53,90 @@ def get_user(user_id: int, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+
+def _ensure_cookie_user_matches_path_user(request: Request, user_id: int) -> int:
+    cookie_user_id = request.cookies.get("user_id")
+    if not cookie_user_id:
+        raise HTTPException(status_code=401, detail="Nicht eingeloggt")
+
+    try:
+        cookie_user_id_value = int(cookie_user_id)
+    except ValueError:
+        raise HTTPException(status_code=401, detail="Ungueltige Session")
+
+    if cookie_user_id_value != user_id:
+        raise HTTPException(status_code=403, detail="Keine Berechtigung")
+
+    return cookie_user_id_value
+
+
+@router.get("/{user_id}/tags")
+def get_user_tags(user_id: int, request: Request, db: Session = Depends(get_db)):
+    _ensure_cookie_user_matches_path_user(request, user_id)
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    tags_payload = [{"id": t.id, "name": t.name} for t in user.tags]
+    return {"tags": tags_payload}
+
+
+@router.post("/{user_id}/tags/by-name/{tag_name}")
+def add_user_tag_by_name(user_id: int, tag_name: str, request: Request, db: Session = Depends(get_db)):
+    _ensure_cookie_user_matches_path_user(request, user_id)
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    normalized_name = tag_name.strip()
+    if not normalized_name:
+        raise HTTPException(status_code=400, detail="Tag-Name fehlt")
+
+    tag = db.query(Tag).filter(func.lower(Tag.name) == normalized_name.lower()).first()
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag nicht gefunden")
+
+    added = False
+    if tag not in user.tags:
+        user.tags.append(tag)
+        user.suggestion_history.clear()
+        db.commit()
+        added = True
+
+    refreshed_user = db.query(User).filter(User.id == user_id).first() or user
+    tags_payload = [{"id": t.id, "name": t.name} for t in refreshed_user.tags]
+    return {"added": added, "tags": tags_payload}
+
+
+@router.delete("/{user_id}/tags/by-name/{tag_name}")
+def remove_user_tag_by_name(user_id: int, tag_name: str, request: Request, db: Session = Depends(get_db)):
+    _ensure_cookie_user_matches_path_user(request, user_id)
+
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    normalized_name = tag_name.strip()
+    if not normalized_name:
+        raise HTTPException(status_code=400, detail="Tag-Name fehlt")
+
+    tag = db.query(Tag).filter(func.lower(Tag.name) == normalized_name.lower()).first()
+    if not tag:
+        raise HTTPException(status_code=404, detail="Tag nicht gefunden")
+
+    removed = False
+    if tag in user.tags:
+        user.tags.remove(tag)
+        user.suggestion_history.clear()
+        db.commit()
+        removed = True
+
+    refreshed_user = db.query(User).filter(User.id == user_id).first() or user
+    tags_payload = [{"id": t.id, "name": t.name} for t in refreshed_user.tags]
+    return {"removed": removed, "tags": tags_payload}
 
 
 @auth_router.get("/signup")
@@ -155,7 +240,11 @@ async def save_selected_tags(request: Request, db: Session = Depends(get_db)):
         return RedirectResponse(url="/login", status_code=303)
 
     form = await request.form()
-    selected_tag_ids = [int(tag_id) for tag_id in form.getlist("tag_ids") if str(tag_id).strip()]
+    selected_tag_ids = [
+        int(tag_id)
+        for tag_id in form.getlist("tag_ids")
+        if isinstance(tag_id, str) and tag_id.strip()
+    ]
     selected_tags = db.query(Tag).filter(Tag.id.in_(selected_tag_ids)).all()
 
     user.tags = selected_tags

@@ -129,3 +129,179 @@ console.log('DailyDish app loaded');
 		doc.save(`${sanitizeFileName(title)}.pdf`);
 	};
 })();
+
+(function attachTagPillInteractions() {
+	const userTagNames = new Set();
+
+	function normalizeTagName(tagName) {
+		return String(tagName || '').trim().toLocaleLowerCase('de');
+	}
+
+	function getCurrentUserId() {
+		const dashboardRoot = document.getElementById('dashboard-content-stack');
+		if (dashboardRoot && dashboardRoot.dataset.userId) {
+			return dashboardRoot.dataset.userId;
+		}
+
+		const favouritesRoot = document.getElementById('favourites-page');
+		if (favouritesRoot && favouritesRoot.dataset.userId) {
+			return favouritesRoot.dataset.userId;
+		}
+
+		const cookieMatch = document.cookie.match(/(?:^|; )user_id=([^;]+)/);
+		return cookieMatch ? decodeURIComponent(cookieMatch[1]) : null;
+	}
+
+	function refreshMyTagsSection(tags) {
+		const tagList = document.getElementById('my-tags-list');
+		const emptyText = document.getElementById('my-tags-empty');
+
+		userTagNames.clear();
+		(tags || []).forEach(tag => userTagNames.add(normalizeTagName(tag.name)));
+		syncAllTagPillStates();
+
+		if (!tagList || !emptyText) return;
+
+		tagList.innerHTML = '';
+		if (!Array.isArray(tags) || !tags.length) {
+			emptyText.classList.remove('hidden');
+			return;
+		}
+
+		emptyText.classList.add('hidden');
+		tags
+			.slice()
+			.sort((a, b) => String(a.name || '').localeCompare(String(b.name || ''), 'de'))
+			.forEach(tag => {
+				const pill = document.createElement('span');
+				pill.className = 'tag-pill';
+				pill.textContent = tag.name;
+				tagList.appendChild(pill);
+			});
+
+		syncAllTagPillStates();
+	}
+
+	async function fetchCurrentUserTags() {
+		const userId = getCurrentUserId();
+		if (!userId) return false;
+
+		const response = await fetch(`/user/${userId}/tags`);
+		if (!response.ok) return false;
+
+		const payload = await response.json();
+		refreshMyTagsSection(payload.tags || []);
+		return true;
+	}
+
+	function syncTagPillState(tagPill) {
+		if (!tagPill || tagPill.classList.contains('tag-pill-button')) return;
+		const tagName = String(tagPill.textContent || '').trim();
+		const hasTag = userTagNames.has(normalizeTagName(tagName));
+		tagPill.classList.toggle('tag-pill-user-has-tag', hasTag);
+	}
+
+	function syncAllTagPillStates() {
+		document.querySelectorAll('.tag-pill').forEach(syncTagPillState);
+	}
+
+	function syncTagPillsInNode(node) {
+		if (!(node instanceof Element)) return;
+
+		if (node.classList.contains('tag-pill')) {
+			syncTagPillState(node);
+		}
+
+		node.querySelectorAll('.tag-pill').forEach(syncTagPillState);
+	}
+
+	async function addTagForCurrentUserByName(tagName) {
+		const userId = getCurrentUserId();
+		if (!userId || !tagName) return false;
+
+		const response = await fetch(`/user/${userId}/tags/by-name/${encodeURIComponent(tagName)}`, {
+			method: 'POST'
+		});
+		if (!response.ok) return false;
+
+		const payload = await response.json();
+		refreshMyTagsSection(payload.tags || []);
+		return true;
+	}
+
+	async function removeTagForCurrentUserByName(tagName) {
+		const userId = getCurrentUserId();
+		if (!userId || !tagName) return false;
+
+		const response = await fetch(`/user/${userId}/tags/by-name/${encodeURIComponent(tagName)}`, {
+			method: 'DELETE'
+		});
+		if (!response.ok) return false;
+
+		const payload = await response.json();
+		refreshMyTagsSection(payload.tags || []);
+		return true;
+	}
+
+	function showTagPillFeedback(tagPill, feedbackType) {
+		if (!tagPill) return;
+		const addClass = 'tag-pill-added-feedback';
+		const removeClass = 'tag-pill-removed-feedback';
+		tagPill.classList.remove(addClass, removeClass);
+
+		if (feedbackType === 'remove') {
+			tagPill.classList.add(removeClass);
+		} else {
+			tagPill.classList.add(addClass);
+		}
+
+		window.setTimeout(() => {
+			tagPill.classList.remove(addClass, removeClass);
+		}, 900);
+	}
+
+	document.addEventListener('click', async event => {
+		const tagPill = event.target.closest('.tag-pill');
+		if (!tagPill) return;
+
+		if (tagPill.classList.contains('tag-pill-button')) {
+			return;
+		}
+
+		const tagName = String(tagPill.textContent || '').trim();
+		if (!tagName) return;
+
+		const userId = getCurrentUserId();
+		if (!userId) return;
+
+		event.stopPropagation();
+		const isAlreadyInUserTags = userTagNames.has(normalizeTagName(tagName));
+		const ok = isAlreadyInUserTags
+			? await removeTagForCurrentUserByName(tagName)
+			: await addTagForCurrentUserByName(tagName);
+
+		if (ok) {
+			showTagPillFeedback(tagPill, isAlreadyInUserTags ? 'remove' : 'add');
+		}
+	});
+
+	// Keep hover icon (+ / checkmark) correct for tag pills that are rendered after initial page load.
+	document.addEventListener('mouseover', event => {
+		const tagPill = event.target.closest('.tag-pill');
+		if (!tagPill) return;
+		syncTagPillState(tagPill);
+	});
+
+	const tagPillObserver = new MutationObserver((mutations) => {
+		mutations.forEach((mutation) => {
+			mutation.addedNodes.forEach(syncTagPillsInNode);
+		});
+	});
+
+	tagPillObserver.observe(document.body, {
+		childList: true,
+		subtree: true
+	});
+
+	fetchCurrentUserTags();
+})();
